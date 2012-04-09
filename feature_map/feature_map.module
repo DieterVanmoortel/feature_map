@@ -1,0 +1,118 @@
+<?php
+/**
+ * @file
+ * Code for the Feature Branches feature.
+ */
+module_load_include('inc', 'feature_map', 'includes/feature_map.helpers');
+module_load_include('inc', 'feature_map', 'includes/feature_map.variable');
+module_load_include('inc', 'feature_map', 'theme/feature_map.theme');
+
+
+
+
+function feature_map_init() {
+ // Bpost helper
+//  nas_helpers('bpost');
+//
+//  nas_bpost_init(array(
+//      'element_identifiers' => array(
+//          '.bpost_autocomplete'
+//      ),
+//  ));
+}
+
+
+/*
+ * Implements hook_permission
+ */
+function feature_map_permission(){
+    return array(
+    'administer map' => array(
+      'title' => t('Administer map'), 
+      'description' => t('Set map settings.'),
+    ),
+  );
+}
+
+/*  
+ * Implements hook_menu().
+ */
+function feature_map_menu() {
+  
+  $items['ajax/locator'] = array(
+    'page callback' => 'feature_map_locator_json', 
+    'access arguments' => array('access content'), 
+    'file' => 'includes/feature_map.ajax.inc',
+    'type' => MENU_CALLBACK,
+  );
+  
+  $items['map'] = array(
+    'title' => t('Map'),
+    'page callback' => 'feature_map_page', 
+    'access arguments' => array('access content'), 
+    'file' => 'includes/feature_map.pages.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['admin/config/map'] = array(
+    'title' => t('Map settings'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('variable_module_form','feature_map'),
+    'access arguments' => array('administer map'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/config/map/settings'] = array(
+    'title' => t('Map settings'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('variable_module_form','feature_map'),
+    'access arguments' => array('administer map'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+
+  $items['ajax/map/%'] = array(
+    'page callback' => 'feature_map_ajax',
+    'page arguments' => array(3),
+    'access arguments' => array('access content'),
+    'file' => 'includes/feature_map.ajax.inc',
+    'type' => MENU_CALLBACK,
+  );
+  
+  $types = array_filter(variable_get_value('map_entity_type'));
+  if(count($types)) {
+    foreach($types as $type){
+         $items['admin/config/map/'.$type] = array(
+          'title' => t('Mapping: @type', array('@type' => $type)),
+          'page callback' => 'drupal_get_form',
+          'page arguments' => array('map_entity_mapping_form', 3),
+          'access arguments' => array('administer map'),
+          'type' => MENU_LOCAL_TASK,
+          'file' => 'includes/feature_map.forms.inc',
+     );
+    }
+  }
+  return (array)$items; 
+}
+/**
+ *  Implementing hook_entity_presave
+ */
+function feature_map_entity_presave($entity, $type) {
+  // check if fetching coordinates is necessary..
+  $mapped_entities = array_filter(variable_get_value('map_entity_type'));
+  if(in_array($entity->type, $mapped_entities)) {
+    $mapped_fields = variable_get_value($entity->type .'_mapping');
+      foreach((array)$mapped_fields as $key => $field) {
+      // check to see if mapped field values have changed.
+        $data = field_get_items('node', $entity, $field);
+        if(!$entity->is_new){
+          $original = field_get_items('node', $entity->original, $field);
+          $fetch_grid = $original[0]['value'] <> $data[0]['value'] ? TRUE : FALSE;
+        }
+        (array)$address[] = $data[0]['value'];
+      }
+    // and retrieve coordinates if it is
+    if($entity->is_new || $fetch_grid){
+      retrieve_map_coordinates($address, $entity);
+    }
+  }
+}

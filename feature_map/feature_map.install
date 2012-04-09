@@ -1,0 +1,33 @@
+<?php
+
+function feature_map_schema() {
+// use the relations table to store data that links content with profiles
+  $schema['map_coordinates'] = array(
+    'description' => t('Contains coordinates for entities'),
+      'fields' => array(
+        'entity_id' => array(
+          'type' => 'int',
+          'length' => '10',
+          'not null' => TRUE,
+        ),
+        'entity_type' => array(
+          'type' => 'varchar',
+          'length' => '128',
+          'not null' => TRUE,
+          'default' => 'node',
+        ),
+        'lat' => array(
+          'type' => 'varchar',
+          'length' =>'25',
+          'not null' => TRUE,
+        ),
+        'lon' => array(
+          'type' => 'varchar',
+          'length' => '25',
+          'not null' => TRUE,
+        ),
+      ),
+  );
+
+  return $schema;
+}

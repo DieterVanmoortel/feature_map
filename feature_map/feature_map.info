@@ -1,0 +1,13 @@
+name = Feature map
+description = Custmizable map by Nascom
+version = 7.x-dev
+
+package = Features
+core = 7.x
+php = 5.2.4
+configure = admin/config/map
+
+scripts[] = js/feature_map.js
+
+dependencies[] = variable
+dependencies[] = locale
