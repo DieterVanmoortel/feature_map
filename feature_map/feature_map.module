@@ -94,10 +94,29 @@ function feature_map_menu() {
   return (array)$items; 
 }
 /**
- *  Implementing hook_entity_presave
+ * Implementing hook_entity_insert
+ * Identical function to hook_entity_update, which is not triggered with new entities
  */
-function feature_map_entity_presave($entity, $type) {
+function feature_map_entity_insert($entity, $type) {
+  $mapped_entities = array_filter(variable_get_value('map_entity_type'));
+  if(in_array($entity->type, $mapped_entities)) {
+    $mapped_fields = variable_get_value($entity->type .'_mapping');
+    foreach((array)$mapped_fields as $key => $field) {
+      $data = field_get_items('node', $entity, $field);
+      (array)$address[] = $data[0]['value'];
+    }
+    
+  isset($address) ? retrieve_map_coordinates($address, $entity) :'';
+  }
+}
+
+
+/**
+ *  Implementing hook_entity_update
+ */
+function feature_map_entity_update($entity, $type) {
   // check if fetching coordinates is necessary..
+  $fetch_grid = FALSE;
   $mapped_entities = array_filter(variable_get_value('map_entity_type'));
   if(in_array($entity->type, $mapped_entities)) {
     $mapped_fields = variable_get_value($entity->type .'_mapping');
@@ -106,13 +125,25 @@ function feature_map_entity_presave($entity, $type) {
         $data = field_get_items('node', $entity, $field);
         if(!$entity->is_new){
           $original = field_get_items('node', $entity->original, $field);
-          $fetch_grid = $original[0]['value'] <> $data[0]['value'] ? TRUE : FALSE;
+          $fetch_grid = $original[0]['value'] <> $data[0]['value'] ? TRUE :'';
         }
         (array)$address[] = $data[0]['value'];
+        
       }
     // and retrieve coordinates if it is
-    if($entity->is_new || $fetch_grid){
+    if($fetch_grid){
       retrieve_map_coordinates($address, $entity);
     }
+  }
+}
+
+/*
+ * Implementing hook_form_alter
+ */
+function feature_map_form_alter(&$form, &$form_state, $form_id){
+  switch($form_id) {
+    case 'variable_module_form':
+      $form['#submit'][] = 'feature_map_rebuild_menu';
+      break;
   }
 }

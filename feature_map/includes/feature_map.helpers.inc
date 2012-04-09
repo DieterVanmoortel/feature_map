@@ -3,7 +3,12 @@
 define('MAXIMUM_RESULT_COUNT', 10);
 define('BRANCHES_MAXIMUM_DISTANCE', 40);
 
-
+/*
+ * Submit handler
+ */
+function feature_map_rebuild_menu(){
+  if(menu_rebuild()){drupal_set_message(t('Menu rebuilt'));}
+}
 /**
  * 
  */
@@ -34,8 +39,7 @@ function map_view_content_types() {
  * @param type $display : boolean
  */
 function retrieve_map_coordinates($address, $entity, $display = FALSE){
-      $countrycheck = variable_get($entity->type .'_mapping_country_check', FALSE);
-      
+      $countrycheck = variable_get($entity->type .'_mapping_country_check', FALSE);      
       $countrycheck ? $country = variable_get($entity->type .'_mapping_country', FALSE) : '';
       $countrycheck ? $address[] = map_selected_countries($country) : '';
       $address = implode(',',$address);
@@ -43,8 +47,10 @@ function retrieve_map_coordinates($address, $entity, $display = FALSE){
       $grid = map_fetch_grid($address, $display);
       if($display){
         foreach($grid as $placemark){
-          $items[$entity->title][] = $placemark;
+          $items[$entity->vid][] = $placemark;
         }
+        $items[$entity->vid]['title'] = $entity->title;
+        $items[$entity->vid]['vid'] = $entity->vid;
         return $items;
       }
       elseif($grid){
@@ -66,7 +72,7 @@ function retrieve_map_coordinates($address, $entity, $display = FALSE){
  * @return stdClass 
  */
 function map_fetch_grid($address, $display = FALSE){
-  $url = "http://maps.google.com/maps/geo?q=" . htmlentities($address);
+  $url = "http://maps.google.com/maps/geo?q=" . $address;
   $url .= "&amp;output=xml";
   $ret = drupal_http_request($url);
   $result = json_decode($ret->data);
@@ -105,7 +111,7 @@ function feature_map_get_markers($vars){
     $address = intval($vars['postal']);
     $agent_ids = feature_form_search_postal($vars);
     $agents = node_load_multiple($agent_ids);
-    order_by_ranking(&$agents);
+    order_by_ranking($agents);
     if(count($agents) < MAXIMUM_RESULT_COUNT) {
       $url = "http://maps.google.com/maps/geo?q=" . $address . ",belgium&amp;output=json";
       $ret = drupal_http_request($url);
@@ -194,7 +200,7 @@ function feature_map_search_proximity($lat, $lon, $excluded = NULL) {
 /**
  * Order the agents by distance to target
  */
-function order_by_distance(&$agents, $lat, $lon) {
+function order_by_distance($agents, $lat, $lon) {
   foreach($agents as $nid => $agent) {
     // can't use Google maps api because of Query limits..
     // http://maps.googleapis.com/maps/api/distancematrix/json?origins=1000,belgium,belgium&destinations=50.797490,4.424360&mode=driving&sensor=false
@@ -208,6 +214,7 @@ function order_by_distance(&$agents, $lat, $lon) {
   }
   asort($nodes);
   $agents = $nodes;
+  return $agents;
 
 }
 
@@ -215,7 +222,7 @@ function order_by_distance(&$agents, $lat, $lon) {
  *  Order agents by ranking (db)
  * @param type $agents
  */
-function order_by_ranking(&$agents) {
+function order_by_ranking($agents) {
   foreach($agents as $nid => $agent) {
     $rankingvalue = field_get_items('node', $agent, 'field_branch_ranking_banking');
     $rankingvalue = $rankingvalue[0]['value'];
@@ -231,6 +238,7 @@ function order_by_ranking(&$agents) {
       unset($agents[$nid]);
     }
   $agents = $agentset;
+  return $agents;
 }
 
 /*
@@ -251,24 +259,24 @@ function map_selected_countries($value = FALSE){
 //  $countries = country_get_list();
   $t = get_t();
   $countries = array(
-    'AT' => $t('Austria'), 
+//    'AT' => $t('Austria'), 
     'BE' => $t('Belgium'), 
-    'CH' => $t('Switzerland'), 
+//    'CH' => $t('Switzerland'), 
     'DE' => $t('Germany'), 
-    'DK' => $t('Denmark'), 
-    'ES' => $t('Spain'), 
-    'FI' => $t('Finland'), 
+//    'DK' => $t('Denmark'), 
+//    'ES' => $t('Spain'), 
+//    'FI' => $t('Finland'), 
     'FR' => $t('France'), 
     'GB' => $t('United Kingdom'), 
-    'GR' => $t('Greece'), 
-    'IT' => $t('Italy'), 
+//    'GR' => $t('Greece'), 
+//    'IT' => $t('Italy'), 
     'LU' => $t('Luxembourg'), 
     'NL' => $t('Netherlands'), 
-    'NO' => $t('Norway'), 
-    'PL' => $t('Poland'), 
-    'PT' => $t('Portugal'), 
-    'SE' => $t('Sweden'), 
-    'US' => $t('United States'), 
+//    'NO' => $t('Norway'), 
+//    'PL' => $t('Poland'), 
+//    'PT' => $t('Portugal'), 
+//    'SE' => $t('Sweden'), 
+//    'US' => $t('United States'), 
   );
   if($value){
     return $countries[$value];

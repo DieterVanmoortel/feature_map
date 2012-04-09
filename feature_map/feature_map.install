@@ -1,7 +1,9 @@
 <?php
-
+/*
+ * Implements hook_schema
+ */
 function feature_map_schema() {
-// use the relations table to store data that links content with profiles
+// use the map_coordinates table to store lat & lon for entities
   $schema['map_coordinates'] = array(
     'description' => t('Contains coordinates for entities'),
       'fields' => array(
@@ -27,7 +29,16 @@ function feature_map_schema() {
           'not null' => TRUE,
         ),
       ),
+      'primary key' => array('entity_id'),
   );
 
   return $schema;
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function feature_map_uninstall() {
+  drupal_uninstall_schema('map_coordinates');
+  variable_del('context_ui_show_empty_regions');
 }

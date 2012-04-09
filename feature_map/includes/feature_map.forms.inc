@@ -1,20 +1,4 @@
 <?php
-
-/*
- * Implementing hook_form_alter
- */
-function feature_map_form_alter(&$form, &$form_state, $form_id){
-  switch($form_id) {
-    case 'variable_module_form':
-      $form['#submit'][] = 'feature_map_rebuild_menu';
-      break;
-  }
-}
-
-function feature_map_rebuild_menu(){
-  if(menu_rebuild()){drupal_set_message(t('Menu rebuilt'));}
-}
-
 /**
  * Callback for config/map/%entity_type
  * @param type $form
@@ -26,19 +10,18 @@ function map_entity_mapping_form($form, $form_state, $entity_type){
   $form = array();
   $options = array();
   $form_state['entity_type'] = $entity_type;
+  
   $entity_info = field_info_instances();
   foreach((array)$entity_info as $type => $bundle) {
     if(array_key_exists($entity_type, $bundle)) {
-      foreach((array)$bundle as $key => $value) {
-        foreach((array)$value as $label => $field){
-          $options[$label] = $field['label'];
-        }             
+      foreach((array)$bundle[$entity_type] as $key => $value) {
+        $options[$key] = $value['label'];
       }
     }
   }
   unset($options['body']);
   if (count($options)){
-
+    
     $form[$entity_type .'_mapping'] = array(
         '#title' => t('Fields that hold location data'),
         '#type' => 'select',
@@ -51,7 +34,7 @@ function map_entity_mapping_form($form, $form_state, $entity_type){
     $form[$entity_type .'_mapping_country_check'] = array(
         '#title' => t('All entities are situated in the same country.'),
         '#type' => 'checkbox',
-        '#default_value' => variable_get($entity_type .'_mapping_country_check', ''),
+        '#default_value' => variable_get($entity_type .'_mapping_country_check', '1'),
         '#description' => t('Check this box if you have no fields that return country information.'),
     );
     $countries = map_selected_countries();
@@ -64,7 +47,7 @@ function map_entity_mapping_form($form, $form_state, $entity_type){
         '#states' => array(
           'visible' => array(
           '#edit-city-mapping-country-check' => array('checked' => TRUE),
-    ),
+          ),
         )
     );
     $form[$entity_type .'_mapfilters'] = array(
@@ -82,28 +65,40 @@ function map_entity_mapping_form($form, $form_state, $entity_type){
           '#markup' => t('No fields were found to map this entity type.')
       );
   }
-  if(variable_get($entity_type .'_mapping', '') != ''){
+
+  if(isset($form_state['results'])){
+    if(count($form_state['results']) != 0) {
+      foreach((array)$form_state['results'] as $entity => $result){
+        $grids = array();
+        $title = $result['title'];
+        unset($result['title']);
+        unset($result['vid']);
+
+        foreach((array)$result as $key => $obj){
+          $grids[$key] = $obj->address;
+        }
+        $default_value = count($result) == 1 ? array_keys($grids) : ''; 
+        $form[$entity_type .'_set_grid_' . $entity] = array(
+          '#title' => t('Select address for ' . $title),
+          '#type' => 'select',
+          '#options' => $grids,
+          '#default_value' => $default_value,
+          );
+        }
+        $form['savetotable'] = array(
+          '#type' => 'submit',
+          '#value' => t('Save coordinates')
+        );
+    }
+    elseif(count($form_state['results']) == 0){
+      drupal_set_message(t('No content was found that has not yet been located.'));
+    }
+  }
+  elseif(variable_get($entity_type .'_mapping', '') != '') {
     $form['locate'] = array(
       '#type' => 'submit',
       '#value' => t('Fetch coordinates')
     );
-  }
-  if(isset($form_state['results'])) {
-    foreach((array)$form_state['results'] as $entity => $result){
-      // below is useless when there's only one result.
-      if(count($result) == 1) { continue; }
-      $grids = array();
-      foreach((array)$result as $key => $obj){
-        dpm($obj, 'result returned by google maps for ' .$entity);
-        $grids[$key] = $obj->AddressDetails->Country->CountryName;
-      }
-      $form[$entity_type .'_set_grid_' . $entity] = array(
-        '#title' => t('Select country for ' . $entity),
-        '#type' => 'radios',
-        '#options' => $grids,
-        '#default_value' => variable_get($entity_type .'_set_grid_' . $entity, 'BE'),
-        );
-    }
   }
   $form['#submit'][] = 'map_entity_mapping_form_submit';
   return system_settings_form($form);
@@ -115,13 +110,26 @@ function map_entity_mapping_form($form, $form_state, $entity_type){
  * @param type $form_state
  */
 function map_entity_mapping_form_submit($form, &$form_state) {
+  // if fetch coordinates is clicked
   if($form_state['clicked_button']['#id'] == 'edit-locate'){
     $form_state['results'] = feature_map_check_coordinates($form_state['entity_type'], TRUE);
     $form_state['rebuild'] = TRUE;
   }
-//  elseif(isset($form_state['found_grids'])){unset($form_state['found_grids']);}
+  // if save coordinates is clicked
+  elseif($form_state['clicked_button']['#id'] == 'edit-savetotable'){
+    foreach((array)$form_state['results'] as $key => $result) {
+      
+      $selection = $form_state['values'][$form_state['entity_type'] . '_set_grid_' .$key];
+      db_merge('map_coordinates')
+        ->key(array('entity_id' => $result['vid']))
+        ->fields(array(
+            'lon' => $result[$selection]->Point->coordinates[0],
+            'lat' => $result[$selection]->Point->coordinates[1],
+        ))
+        ->execute();
+    }
+  }
 }
-
 
 
   /**
@@ -142,7 +150,6 @@ function feature_map_check_coordinates($entity_type = FALSE, $display = FALSE) {
   $query->condition('n.status', 1);
   $query->fields('n', array('nid'));
   $result = $query->execute()->fetchCol();
-
   // switch this to entities TODO
   $entities = node_load_multiple($result);
   $count = count($entities);
@@ -155,6 +162,5 @@ function feature_map_check_coordinates($entity_type = FALSE, $display = FALSE) {
       }
     $results = array_merge($results, retrieve_map_coordinates($address, $entity, $display));
   }
-
   return $display ? $results : $count . ' nodes were enriched with lattitude & longitude.';
 }

@@ -1,5 +1,5 @@
 name = Feature map
-description = Custmizable map by Nascom
+description = Customizable map by Nascom
 version = 7.x-dev
 
 package = Features
@@ -10,4 +10,3 @@ configure = admin/config/map
 scripts[] = js/feature_map.js
 
 dependencies[] = variable
-dependencies[] = locale
