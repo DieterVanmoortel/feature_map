@@ -8,6 +8,7 @@
  */
 function map_entity_mapping_form($form, $form_state, $entity_type){
   $form = array();
+  $form['#submit'][] = 'map_entity_mapping_form_submit';
   $options = array();
   $form_state['entity_type'] = $entity_type;
   
@@ -89,6 +90,7 @@ function map_entity_mapping_form($form, $form_state, $entity_type){
           '#type' => 'submit',
           '#value' => t('Save coordinates')
         );
+        return $form;
     }
     elseif(count($form_state['results']) == 0){
       drupal_set_message(t('No content was found that has not yet been located.'));
@@ -98,9 +100,9 @@ function map_entity_mapping_form($form, $form_state, $entity_type){
     $form['locate'] = array(
       '#type' => 'submit',
       '#value' => t('Fetch coordinates')
-    );
+    );    
   }
-  $form['#submit'][] = 'map_entity_mapping_form_submit';
+  
   return system_settings_form($form);
 }
 
@@ -160,7 +162,8 @@ function feature_map_check_coordinates($entity_type = FALSE, $display = FALSE) {
         $data = field_get_items('node', $entity, $field);
         $address[] = $data[0]['value'];
       }
-    $results = array_merge($results, retrieve_map_coordinates($address, $entity, $display));
+    $coords = retrieve_map_coordinates($address, $entity, $display);
+    $coords ? $results = array_merge($results, $coords): '';
   }
   return $display ? $results : $count . ' nodes were enriched with lattitude & longitude.';
 }

@@ -1,7 +1,5 @@
 <?php
 // better add this to the variables
-define('MAXIMUM_RESULT_COUNT', 10);
-define('BRANCHES_MAXIMUM_DISTANCE', 40);
 
 /*
  * Submit handler
@@ -10,7 +8,7 @@ function feature_map_rebuild_menu(){
   if(menu_rebuild()){drupal_set_message(t('Menu rebuilt'));}
 }
 /**
- * 
+ * select list callback : map types
  */
 function map_view_type_options($variable, $options = array()){
   return array(
@@ -20,7 +18,7 @@ function map_view_type_options($variable, $options = array()){
   );
 }
 /**
- * 
+ * select list callback : content types
  */
 function map_view_content_types() {
   foreach(entity_get_info() as $type => $value) {
@@ -45,7 +43,7 @@ function retrieve_map_coordinates($address, $entity, $display = FALSE){
       $address = implode(',',$address);
       // fetch from google maps
       $grid = map_fetch_grid($address, $display);
-      if($display){
+      if($grid && $display){
         foreach($grid as $placemark){
           $items[$entity->vid][] = $placemark;
         }
@@ -64,19 +62,18 @@ function retrieve_map_coordinates($address, $entity, $display = FALSE){
           ->execute();
       }
     }
-
-
 /**
  *  Retrieves lat & lon from google maps api
  * @param type $address a string
  * @return stdClass 
  */
 function map_fetch_grid($address, $display = FALSE){
+  // todo; check if we don't need an urlencode or htmlentities around $address
   $url = "http://maps.google.com/maps/geo?q=" . $address;
   $url .= "&amp;output=xml";
   $ret = drupal_http_request($url);
   $result = json_decode($ret->data);
-  if($result->Status->code == 200){
+  if($result && $result->Status->code == 200){
     if($display){
       // use this function to display a list of found lat/lon or multiple possibilities?
       return $result->Placemark;
@@ -94,7 +91,7 @@ function map_fetch_grid($address, $display = FALSE){
     }
   }
   else{
-    watchdog('Google Maps', t('Could not retrieve date from '. l($url, $url)));
+    watchdog('Google Maps', t('Could not retrieve data from '. l($url, $url)));
     return FALSE;
   }
 }

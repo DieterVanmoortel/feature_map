@@ -1,6 +1,5 @@
 
 body.map #header{position:relative; z-index:10;}
-body.map #page-wrapper {width:100%; position:relative; bottom: 45px; z-index:1;}
 body.map #page-wrapper #main {padding: 0 0 50px;}
 body.map #page-wrapper #main h1{display:none;}
 
