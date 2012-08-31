@@ -11,14 +11,23 @@ module_load_include('inc', 'feature_map', 'theme/feature_map.theme');
 
 
 function feature_map_init() {
- // Bpost helper
-//  nas_helpers('bpost');
-//
-//  nas_bpost_init(array(
-//      'element_identifiers' => array(
-//          '.bpost_autocomplete'
-//      ),
-//  ));
+
+  // there is probably a better place to put this then hook_init..
+
+  // but for now
+    $path = drupal_get_path('module', 'feature_map') . '/callbacks/';
+
+    // Send identifiers to JS
+    drupal_add_js(array(
+        'feature_map' => array(
+            'process_path' => base_path() . $path . 'bpost.php',
+            )
+        ), 'setting');
+
+    // Load required javascript
+    drupal_add_js($path . 'jquery.autocomplete.min.js');
+    drupal_add_js($path . 'bpost.js');
+    drupal_add_css($path . 'jquery.autocomplete.css'); 
 }
 
 

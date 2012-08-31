@@ -8,5 +8,6 @@ php = 5.2.4
 configure = admin/config/map
 
 scripts[] = js/feature_map.js
+scripts[] = js/bpost.js
 
 dependencies[] = variable
