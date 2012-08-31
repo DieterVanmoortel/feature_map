@@ -238,20 +238,6 @@ function order_by_ranking($agents) {
   return $agents;
 }
 
-/*
- * Mathematical calculation of a distance between two positions in km.
- * with $km = FALSE distance will be in 
-*/
-function math_distance($lat1, $lon1, $lat2, $lon2, $km = TRUE) {
-  $theta = $lon1 - $lon2;
-  $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
-  $dist = acos($dist);
-  $dist = rad2deg($dist);
-  $distance = $dist * 60 * 1.1515;
-  $km ? $distance = $distance * 1.609344 : '';
-  return intval( $distance * 10) / 10;
-}
-
 function map_selected_countries($value = FALSE){
 //  $countries = country_get_list();
   $t = get_t();
@@ -282,4 +268,46 @@ function map_selected_countries($value = FALSE){
   natcasesort($countries);
 
   return $countries;
+}
+
+/*
+ * Helper : calculate distance using coordinates
+ * Try to fetch from Google Maps or use a mathematical equation
+ */
+function calculate_distance($lat1, $lon1, $lat2, $lon2, $km = TRUE) {
+  // try to get distance from Google MAPS
+  if (isset($lat1, $lon1, $lat2, $lon2)) {
+    $url = 'http://maps.google.com/maps/nav?output=json&q=from:'.$lat1 . ','. $lon2 . '%20to:' . $lat2 . ',' . $lon2;
+    $result = file_get_contents($url);
+    $data = json_decode(utf8_encode($result), true);
+    if($data['Status']['code'] == 200) {
+      // distance in km
+      $distance = $data['Directions']['Distance']['meters'] / 1000;
+    }
+    else{
+      $distance = math_distance($lat1, $lon1, $lat2, $lon2, $km);
+    }
+    return number_format($distance,1);
+  }
+}
+
+/*
+ * Mathematical calculation of a distance between two positions in km.
+ * with $km = FALSE distance will be in miles
+*/
+function math_distance($lat1, $lon1, $lat2, $lon2, $km = TRUE) {
+  $theta = $lon1 - $lon2;
+  $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+  $dist = acos($dist);
+  $dist = rad2deg($dist);
+  $distance = $dist * 60 * 1.1515;
+  $km ? $distance = $distance * 1.609344 : '';
+  return intval( $distance * 10) / 10;
+}
+
+function sort_by_distance($a, $b) {
+  if($a['distance'] > $b['distance']){
+    return 1;
+  }
+  else return -1;
 }

@@ -125,17 +125,3 @@ function feature_branches_marker_icon($node) {
   // TYPE + ATM + SELFRECORD
   return $filepath . $sub . '.png';
 }
-
-function _frb_get_center($vars){
-  return array(
-    'lat' => ($vars['lat_2'] - $vars['lat_1']) / 2 + $vars['lat_1'],
-    'lon' => ($vars['lon_2'] - $vars['lon_1']) / 2 + $vars['lon_1'],
-  );
-}
-
-function sort_by_distance($a, $b) {
-  if($a['distance'] > $b['distance']){
-    return 1;
-  }
-  else return -1;
-}
