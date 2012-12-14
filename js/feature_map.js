@@ -50,7 +50,6 @@
       if($('#agent_gmap').length) {
         this.branch_gmap_init();
       }
-      console.log($().jquery);
 //      if($('#slider-range').length){
 //        $( "#slider-range" ).slider({
 //          range: "min",

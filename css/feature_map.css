@@ -1,14 +1,11 @@
-
-body.map #header{position:relative; z-index:10;}
-body.map #page-wrapper #main {padding: 0 0 50px;}
-body.map #page-wrapper #main h1{display:none;}
-
+.page-map .centered{width:100%}
+.page-map .centered #content{width:100%}
 
 #map_wrapper {position:relative; height:80%; width: 100%;display:block;}
-#map_canvas {height: 750px; width:85%; float:left;}
+#map_canvas {height: 750px; width:100%; float:left;}
 
 /*#map_options {position:relative; height:750px; width:15%;background-color: #0B0D12;clear:none;float:right;}*/
-#map_options {position:relative; height:750px; width:15%;background-color: white;clear:none;float:right;}
+#map_options {position:relative; height:auto; width:100%;background-color: white;clear:none;float:right;}
 #map_options h2{background-color:white;display:block;padding:10px;}
 #map_options .block{
   padding:8px;

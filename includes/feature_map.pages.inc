@@ -11,62 +11,7 @@ define("BRANCHES_MAXIMUM_DISTANCE", 40000);  // = 40km
  */
 function feature_map_page() {
   global $language; 
-
-  $element = array(
-      '#tag' => 'meta',
-      '#attributes' => array(
-          'name' => 'viewport',
-          'content' => 'initial-scale=1.0, user-scalable=no',
-      ),
-  );
-
-  drupal_add_html_head($element, 'feature_map');
-  $path = drupal_get_path('module', 'nas') . '/helpers/bpost/';
-    
-    // Send identifiers to JS
-    drupal_add_js(array(
-        'bpost' => array(
-//            'identifiers' => $config['element_identifiers'],
-            'process_path' => drupal_get_path('module', 'feature_map') . '/bpost/bpost.php',
-            'language' => $language->language,
-            )
-        ), 'setting');   
-    
-  // Load required javascript  
-  
-  
-  // we can download following on cron to the sites/default files : BIG TODO !
-  drupal_add_js('http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=' . $language->language . '&region=be');
-//  drupal_add_js('http://google-maps-utility-library-v3.googlecode.com/svn/tags/markerclustererplus/2.0.1/src/markerclusterer_packed.js');
-//  drupal_add_js('https://raw.github.com/cowboy/jquery-bbq/v1.2.1/jquery.ba-bbq.min.js');
-  drupal_add_js(drupal_get_path('module', 'feature_map') . '/js/jquery.ba-bbq.min.js');
-  drupal_add_js(drupal_get_path('module', 'feature_map') . '/js/markerclusterer_packed.js');
-  drupal_add_js(drupal_get_path('module', 'feature_map') . '/bpost/jquery.autocomplete.min.js');
-  drupal_add_js(drupal_get_path('module', 'feature_map') . '/bpost/bpost.js');
-//  drupal_add_js(drupal_get_path('module', 'feature_map') . '/js/infobubble.js');
-  drupal_add_js(drupal_get_path('module', 'feature_map') . '/js/jquery.hoverintent.js');
-  drupal_add_js(drupal_get_path('module', 'feature_map') . '/js/locator.js');
-  
-  
-  // need to move this to a settings page too.
-  drupal_add_js('var language="' . $language->language . '";
-        var gmapsettings = {
-            min_result_count:7,
-            max_result_count:10,
-            max_zoom:7,
-            min_zoom_for_min_result:8,
-            default_zoom:13,
-            agent_infowindow_zoom:14,
-            tab_info_title: "' . t('Information') .'",
-            agent_json_url:"/ajax/locator",
-            dummy:"" }
-            ', array('type' => 'inline'));
-
-
-  // add some styling
-  drupal_add_css(drupal_get_path('module', 'nas') . '/helpers/bpost/jquery.autocomplete.css');
-  drupal_add_css(drupal_get_path('module', 'feature_map') . '/css/feature_map.css');
-  drupal_add_css(drupal_get_path('module', 'feature_map') . '/bpost/jquery.autocomplete.css');
+  add_map_basics();
 
 
   // the actual output
@@ -83,45 +28,26 @@ function feature_map_page() {
   return $output;
 }
 
-/**
- * Fetch marker icon
- * @param type $node
+/*
+ * Add necessary js & css for maps to show
  */
-function feature_branches_marker_icon($node) {
-  $default = 'rb_agent.png';
-  $filepath = 'rb_';
+function add_map_basics(){
+  global $language, $base_url;
+  $element = array(
+      '#tag' => 'meta',
+      '#attributes' => array(
+          'name' => 'viewport',
+          'content' => 'initial-scale=1.0, user-scalable=no',
+      ),
+  );
+  drupal_add_html_head($element, 'feature_map');
 
-  if (!empty($node->field_branch_broker) && isset($node->field_branch_broker[$node->language][0]['value'])) {
-    if ($node->field_branch_broker[$node->language][0]['value'] == 1) {
-      $filepath .= 'agent';
-    }
-    else {
-      $filepath .= 'broker';
-    }
-  }
-  else {
-    return $default;
-  }
+  $http_protocol = substr($base_url, 0, 5) == 'https' ? 'https' : 'http';
 
-  // Thanks to our designer for great naming conventions
-  $sub = '';
-  if (!empty($node->field_branch_atm) && isset($node->field_branch_atm[$node->language][0]['value'])) {
-    if ($node->field_branch_atm[$node->language][0]['value'] > 0) {
-      $sub .= '_atm';
-    }
-  }
+  drupal_add_js($http_protocol . '://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=' . $language->language, 'external');
+  drupal_add_js($http_protocol . '://google-maps-utility-library-v3.googlecode.com/svn/tags/markerclustererplus/2.0.1/src/markerclusterer_packed.js', 'external');
+  drupal_add_js(drupal_get_path('module', 'feature_map') . '/js/locator.js');
 
-  if (!empty($node->field_branch_selfrecord) && isset($node->field_branch_selfrecord[$node->language][0]['value'])) {
-    if ($node->field_branch_selfrecord[$node->language][0]['value']) {
-      if (empty($sub)) {
-        $sub .= '_sr';
-      }
-      else {
-        $sub .= 'sr';
-      }
-    }
-  }
-
-  // TYPE + ATM + SELFRECORD
-  return $filepath . $sub . '.png';
+  // add some styling
+  drupal_add_css(drupal_get_path('module', 'feature_map') . '/css/feature_map.css');
 }

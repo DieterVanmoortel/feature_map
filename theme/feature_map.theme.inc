@@ -11,21 +11,15 @@ function feature_map_theme($existing, $type, $theme, $path) {
   );
 
   $items['map_filters'] = array(
-      'arguments' => array(
-          'node' => NULL,
-      ),
-  ) + $defaults;
+      'arguments' => array('node' => NULL)
+      ) + $defaults;
 
   $items['map_description'] = array(
-      'arguments' => array(
-          'node' => NULL,
-      ),
+      'arguments' => array('node' => NULL),
   ) + $defaults;
 
   $items['map_location'] = array(
-      'arguments' => array(
-          'node' => NULL,
-      ),
+      'arguments' => array('node' => NULL),
   ) + $defaults;
 
   return $items;
@@ -84,4 +78,61 @@ function theme_map_filters() {
   $output .= '</div>';
 
   return $output;
+}
+
+/**
+ * Block: Renders a google map with agent details.
+ */
+function theme_location_summary() {
+  global $language;
+
+  if (arg(0) == 'node' && is_numeric(arg(1))) {
+    $node = node_load(arg(1));
+    if ($node->type == 'branch' && !empty($node->field_branch_google_lon) && isset($node->field_branch_google_lon[$node->language][0]['safe_value']) && !empty($node->field_branch_google_lat) && isset($node->field_branch_google_lat[$node->language][0]['safe_value'])) {
+
+      drupal_add_js('http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=' . $language->language . '&region=be');
+      drupal_add_js('http://google-maps-utility-library-v3.googlecode.com/svn/tags/markerclustererplus/2.0.1/src/markerclusterer_packed.js');
+      drupal_add_js('http://google-maps-utility-library-v3.googlecode.com/svn/trunk/infobubble/src/infobubble-compiled.js');
+      drupal_add_js(drupal_get_path('module', 'feature_branches') . '/js/feature_branches.js');
+
+      $output = '';
+      //$output .= '<p>'. check_plain($node->title) .'</p>';
+      $street = field_get_items('node', $node, 'field_branch_address_str');
+      $output .= '<div>' . check_plain($node->title) . check_plain($street[0]['value']) .' ';
+//      $output .= check_plain($node->field_branch_address_nr[$node->language][0]['value']) .'<br/>';
+      $zip = field_get_items('node', $node, 'field_branch_address_zip');
+      $output .= check_plain($zip[0]['value']) .' ';
+      $city = field_get_items('node', $node, 'field_branch_address_city');
+      $output .= check_plain($city[0]['value']) .'</div>';
+      $url = 'http://maps.google.be/maps';
+
+      $node_fields = array('str', 'nr', 'zip', 'city');
+      $address = array();
+
+      foreach ((array) $node_fields as $node_field) {
+        if (!empty($node->{'field_branch_address_' . $node_field}) && !empty($node->{'field_branch_address_' . $node_field}[$node->language][0]['value'])) {
+          $address[] = $node->{'field_branch_address_' . $node_field}[$node->language][0]['value'];
+        }
+      }
+
+      if (count($address)) {
+        $address = join(' ', $address);
+        $address = urlencode($address);
+      }
+
+      $output .= l(t('Calculate route'), $url, array('query' => array('daddr' => $address), 'attributes' => array('target' => '_blank')));
+
+      drupal_add_js(array(
+          'agent_gmap' => array(
+              'title' => check_plain($node->title),
+              'content' => $output,
+              'lat' => $node->field_branch_google_lat[$node->language][0]['safe_value'],
+              'lng' => $node->field_branch_google_lon[$node->language][0]['safe_value'],
+          )
+              ), 'setting'
+      );
+
+      return '<div id="agent_gmap"></div>';
+    }
+  }
 }

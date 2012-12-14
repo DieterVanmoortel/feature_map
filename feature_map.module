@@ -12,9 +12,8 @@ module_load_include('inc', 'feature_map', 'theme/feature_map.theme');
 
 function feature_map_init() {
 
-  // there is probably a better place to put this then hook_init..
+  // add this to thebblock which calls map or map directly
 
-  // but for now
     $path = drupal_get_path('module', 'feature_map') . '/callbacks/';
 
     // Send identifiers to JS
@@ -25,8 +24,8 @@ function feature_map_init() {
         ), 'setting');
 
     // Load required javascript
-    drupal_add_js($path . 'jquery.autocomplete.min.js');
-    drupal_add_js($path . 'bpost.js');
+//    drupal_add_js($path . 'jquery.autocomplete.min.js');
+//    drupal_add_js($path . 'bpost.js');
     drupal_add_css($path . 'jquery.autocomplete.css'); 
 }
 
@@ -155,4 +154,16 @@ function feature_map_form_alter(&$form, &$form_state, $form_id){
       $form['#submit'][] = 'feature_map_rebuild_menu';
       break;
   }
+  $mapped_entities = array_filter(variable_get_value('map_entity_type'));
+  foreach($mapped_entities as $entity) {
+    if($form_id == $entity . '_node_form') {
+      $nid = $form['nid']['#value'];
+      if(!is_null($nid)){
+        dpm('add a cool map showing coords. ');
+
+      }
+
+    }
+  }
+
 }

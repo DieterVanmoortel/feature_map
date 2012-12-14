@@ -96,10 +96,11 @@ function map_entity_mapping_form($form, $form_state, $entity_type){
       drupal_set_message(t('No content was found that has not yet been located.'));
     }
   }
-  elseif(variable_get($entity_type .'_mapping', '') != '') {
+
+  if(variable_get($entity_type .'_mapping', '') != '') {
     $form['locate'] = array(
       '#type' => 'submit',
-      '#value' => t('Fetch coordinates')
+      '#value' => t('Save configuration & Fetch coordinates')
     );    
   }
   

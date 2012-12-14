@@ -220,14 +220,7 @@
     var map = new google.maps.Map(document.getElementById("map_canvas"),
       myOptions);
 
-    infoWindow = new InfoBubble({
-      maxWidth: 240,
-      shadowStyle: 0,
-      borderRadius: '1px',
-      borderColor: '#515151',
-      minHeight: 280,
-      disableAnimation:true
-    });
+
 //    infoWindow.addTab(gmapsettings.tab_info_title, "");
     var markerStyles = [{url: '/sites/all/themes/benny/images/map/group-empty.png',height: 33, width: 33,opt_textColor: '#000000'}];
     var mcOptions = {
