@@ -43,6 +43,7 @@ function retrieve_map_coordinates($address, $entity, $display = FALSE){
       $address = implode(',',$address);
       // fetch from google maps
       $grid = map_fetch_grid($address, $display);
+      dpm($grid);
       if($grid && $display){
         foreach($grid as $placemark){
           $items[$entity->vid][] = $placemark;
@@ -69,23 +70,28 @@ function retrieve_map_coordinates($address, $entity, $display = FALSE){
  */
 function map_fetch_grid($address, $display = FALSE){
   // todo; check if we don't need an urlencode or htmlentities around $address
-  $url = "http://maps.google.com/maps/geo?q=" . $address;
-  $url .= "&amp;output=xml";
+  $url = "http://maps.googleapis.com/maps/api/geocode/json?address=";
+  $url .= $address;
+  $url .= "&sensor=false";
+
   $ret = drupal_http_request($url);
-  $result = json_decode($ret->data);
-  if($result && $result->Status->code == 200){
-    if($display){
+  dpm($ret);
+  if ($ret->code == 200) {
+    $data = json_decode($ret->data);
+    if ($display) {
       // use this function to display a list of found lat/lon or multiple possibilities?
-      return $result->Placemark;
+      dpm('needs work!!! ');
+      return 'work to be done';
     }
     else{
-      if(count($result->Placemark) > 1){
+      if(count($data->results) > 1){
         watchdog('Google Maps', t('Multiple locations found for '. l($url, $url)));
       }
       else{
+        $result = $data->results[0];
         $position = new stdClass();
-        $position->lon = $result->Placemark[0]->Point->coordinates[0];
-        $position->lat = $result->Placemark[0]->Point->coordinates[1];
+        $position->lon = $result->geometry->location->lng;
+        $position->lat = $result->geometry->location->lat;
         return $position;
       }
     }
@@ -94,103 +100,6 @@ function map_fetch_grid($address, $display = FALSE){
     watchdog('Google Maps', t('Could not retrieve data from '. l($url, $url)));
     return FALSE;
   }
-}
-
-/**
- * Function that returns agent ids.
- * @param type $vars
- * @return array of id's
- */
-function feature_map_get_markers($vars){
-
-  if(intval($vars['postal'])) {
-    //// only used the postal code here. Street & number can be added if desired.
-    $address = intval($vars['postal']);
-    $agent_ids = feature_form_search_postal($vars);
-    $agents = node_load_multiple($agent_ids);
-    order_by_ranking($agents);
-    if(count($agents) < MAXIMUM_RESULT_COUNT) {
-      $url = "http://maps.google.com/maps/geo?q=" . $address . ",belgium&amp;output=json";
-      $ret = drupal_http_request($url);
-      $data = $ret->data;
-      $result = json_decode($data);
-      $lon = $result->Placemark[0]->Point->coordinates[0];
-      $lat = $result->Placemark[0]->Point->coordinates[1];
-      $more = feature_form_search_proximity($lat, $lon, $agent_ids);
-      order_by_distance($more, $lat, $lon);
-      // reducing the number of results shown to the minimum result count
-      $more = array_slice($more, 0, MAXIMUM_RESULT_COUNT - count($agent_ids), TRUE);
-      $adding_agents = node_load_multiple(array_keys($more));
-      // not using an array_merge to keep our key assoc.
-      foreach($adding_agents as $nid => $node) {
-        $agents[$nid] = $node;
-        $agents[$nid]->distance = $more[$nid];
-      }
-    }
-
-    foreach((array)$agents as $nid => $agent){
-      $output[$nid] = '<h3 class="agent-title">'. $agent->title . '</h3>';
-      $fields = array('str', 'zip', 'city');
-      foreach($fields as $field){
-        $fld = field_get_items('node', $agent, 'field_branch_address_' . $field);
-        $output[$nid] .= '<span class="info-' .$field. '">' . $fld[0]['value'] . '</span>';
-      }
-      $output[$nid] .= l(t('More info'), 'node/' . $nid, array('attributes' => array('class' => 'info-more')));
-      isset($agent->distance) ? $output[$nid] .= '<span class="info-distance">'. t('Distance:') . $agent->distance . ' km</span>' : '';
-    }
-    return $output;
-  }
-  else{
-    watchdog('feature_form', 'The entered postal code was not a valid integer.');
-  }
-}
-
-/**
- *  Function that returns agent ids with the given postal code
- * @param type $vars
- * @return array of id's
- */
-function feature_map_search_postal($vars){
-  // get all branches in the same postal code
-//  $query = db_select('node', 'n');
-//    $query->leftjoin('field_data_field_branch_address_zip', 'zip', 'n.nid = zip.entity_id');
-//    $query->condition('field_branch_address_zip_value', $vars['postal']);
-//    $query->condition('type', 'branch');
-//    $query->condition('status', 1);
-//    $query->fields('n', array('nid'));
-//    $result = $query->execute()->fetchCol();
-
-    return $result;
-}
-/**
- *  Function that returns agent ids within a given max range of the location
- * @param type $vars
- * @return array of id's
- */
-function feature_map_search_proximity($lat, $lon, $excluded = NULL) {
-  // not superclean, but lat +- 0.10 & lon +- 0.10 gives a radius of about 20km.
-
-  // need to find a cleaner way..
-  $north = $lat + 0.20;
-  $south = $lat - 0.20;
-  $east = $lon + 0.10;
-  $west = $lon - 0.10;
-  $query = db_select('node', 'n');
-  // get results from map_coordinates table
-  $query->leftjoin('map_coordinates', 'grid', 'n.nid = grid.entity_id');
-  $query->condition('grid.lat', array($south, $north), 'BETWEEN');
-  $query->condition('grid.lon', array($west, $east), 'BETWEEN');
-  if($excluded){
-    $query->condition('n.nid', $excluded, 'NOT IN');
-  }
-  // get this from settings page?
-  $query->condition('type', 'branch');
-  $query->condition('status', 1);
-  $query->fields('n', array('nid'));
-  $query->fields('grid', array('lat', 'lon'));
-  $result = $query->execute()->fetchAllAssoc('nid');
-
-  return $result;
 }
 
 
@@ -310,4 +219,28 @@ function sort_by_distance($a, $b) {
     return 1;
   }
   else return -1;
+}
+
+/*
+ * Add necessary js & css for maps to show
+ */
+function add_map_basics() {
+  global $language, $base_url;
+  $element = array(
+      '#tag' => 'meta',
+      '#attributes' => array(
+          'name' => 'viewport',
+          'content' => 'initial-scale=1.0, user-scalable=no',
+      ),
+  );
+  drupal_add_html_head($element, 'feature_map');
+
+  $http_protocol = substr($base_url, 0, 5) == 'https' ? 'https' : 'http';
+
+  drupal_add_js($http_protocol . '://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=' . $language->language, 'external');
+  drupal_add_js($http_protocol . '://google-maps-utility-library-v3.googlecode.com/svn/tags/markerclustererplus/2.0.1/src/markerclusterer_packed.js', 'external');
+  drupal_add_js(drupal_get_path('module', 'feature_map') . '/js/locator.js');
+
+  // add some styling
+  drupal_add_css(drupal_get_path('module', 'feature_map') . '/css/feature_map.css');
 }

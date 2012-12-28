@@ -5,48 +5,48 @@
  * ajax/branch-locator
  */
 function feature_map_locator_json() {
-  // Values
-  $vars = array(
-      'language' => isset($_REQUEST['language']) ? check_plain($_REQUEST['language']) : 'fr',
-      'lat_1' => isset($_REQUEST['nelat']) ? check_plain($_REQUEST['nelat']) : 0,
-      'lat_2' => isset($_REQUEST['swlat']) ? check_plain($_REQUEST['swlat']) : 0,
-      'lon_1' => isset($_REQUEST['nelng']) ? check_plain($_REQUEST['nelng']) : 0,
-      'lon_2' => isset($_REQUEST['swlng']) ? check_plain($_REQUEST['swlng']) : 0,
-      'postal_code' => isset($_REQUEST['postcode']) ? check_plain($_REQUEST['postcode']) : FALSE,
-      'initial' => isset($_REQUEST['initial']) ? $_REQUEST['initial'] : FALSE,
-      'totalbranches' => isset($_REQUEST['totalbranches']) ? $_REQUEST['totalbranches'] : FALSE,
-      'filters' => array(),
-  );
+  $data = isset($_REQUEST['markers']) ? check_plain($_REQUEST['language']) : 'initial';
 
-  // Filters
-  $available_filters = array(
-      'saving_products',
-      'banking_products',
-      'atm',
-//      'selfrecord',
-      'credits_all',
-      'credits_energy',
-      'credits_home',
-      'credits_cash',
-      'credits_car',
-      'credits_other',
-  );
+  $markers = load_default_markers();
 
-  foreach ($available_filters as $filter) {
-    if (isset($_REQUEST[$filter])) {
-      $vars['filters'][$filter] = TRUE;
-    }
+  if($data <> 'initial') {
+    // do some extra filtering
   }
-  // if only credits_all is set, activate the credits_energy filter.
-  if(count($vars['filters'] == 1) && isset($vars['filters']['credits_all'])){
-    $vars['filters']['credits_energy'] = TRUE;
-  }
-  $response = feature_map_search_sort($vars);
-  return drupal_json_output($response);
+//  return 'dev output'; //dev
+  return drupal_json_output($markers);
 }
 
 
-
+function load_default_markers(){
+  
+  $stored_markers = &drupal_static(__FUNCTION__);
+  if (isset($stored_markers)) {return $stored_markers; }
+  
+  $markers = array();
+  $entities = db_query('SELECT * FROM {map_coordinates}')->fetchAll();
+  foreach((array)$entities as $entity) {
+    $full_entity = entity_load($entity->entity_type, array($entity->entity_id));
+    if ($full_entity) {
+      $full_entity = $full_entity[$entity->entity_id];
+      $marker = array(
+        'title' => $full_entity->title,
+        'lat' => $entity->lat,
+        'lng' => $entity->lon,
+      );
+      // add filters
+      $filters = variable_get($full_entity->type .'_mapfilters', FALSE);
+      if ($filters) {
+        foreach((array)$filters as $filter) {
+          $fieldvalue = field_get_items($entity->entity_type, $full_entity, $filter);
+          $marker[$filter] = $fieldvalue[0]['value'];
+        }
+      }
+      $markers[] = $marker;
+    }
+  }
+  $stored_markers = $markers;
+  return $markers;
+}
 /**
  * Performs a search with the given variables.
  */
