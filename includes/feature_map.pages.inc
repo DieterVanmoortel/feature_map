@@ -29,7 +29,7 @@ function feature_map_page() {
   $output .= '<div id="map_canvas">' . t('Loading map') . '...</div>';
   $output .= theme('map_location');
   $output .= '<div id="map_options">';
-//  $output .= theme('map_description');
+  $output .= theme('map_description');
   
 //  $output .= theme('map_filters');
   $output .= '</div>';

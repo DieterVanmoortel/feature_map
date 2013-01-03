@@ -22,10 +22,17 @@ function feature_map_theme($existing, $type, $theme, $path) {
       'arguments' => array('node' => NULL  ),
   ) + $defaults;
 
+  $items['mapview'] = array(
+      'arguments' => array('marker' => NULL  ),
+  ) + $defaults;
+
   return $items;
 }
 
 
+function theme_listing($data) {
+  return $data;
+}
 /*
  * Theme callback for the description block
  */

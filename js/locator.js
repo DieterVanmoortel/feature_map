@@ -15,29 +15,35 @@
 
       /* Filtering */
       
-
+      $('.triggerdetails').bind('click', function(e){
+        $('.infodetails').toggle();
+      })
     }
   }
 
   function gmap_init(){
     if (Drupal.settings.feature_map.lat && Drupal.settings.feature_map.lng) {
-      var myLatlng = new google.maps.LatLng(Drupal.settings.feature_map.lat,Drupal.settings.feature_map.lng);
-      var myOptions = {
-        zoom: 10,
-        center: myLatlng,
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-        disableDefaultUI: true
-      }
-      var map = new google.maps.Map(document.getElementById("gmap"), myOptions);
-
-      var marker = new google.maps.Marker({
-        position: myLatlng,
-        map: map
-      });
+      set_preview_marker();
     }
     else{    
       load_markers();
     }
+  }
+
+  function set_preview_marker() {
+    var myLatlng = new google.maps.LatLng(Drupal.settings.feature_map.lat,Drupal.settings.feature_map.lng);
+    var myOptions = {
+      zoom: 8,
+      center: myLatlng,
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      disableDefaultUI: true
+    }
+    var map = new google.maps.Map(document.getElementById("gmap"), myOptions);
+
+    var marker = new google.maps.Marker({
+      position: myLatlng,
+      map: map
+    });
   }
   function load_markers(markers) {
 
@@ -67,7 +73,8 @@
           var marker = new google.maps.Marker({
               position: new google.maps.LatLng(data.lat,data.lng),
               icon: "/sites/all/modules/dev/feature_map/theme/redmarker.png",
-              title: data.title,
+              html: data.teaser,
+              id: pos,
               map: map
             });
             
@@ -88,10 +95,11 @@
             disableAnimation:true
           });
           google.maps.event.addListener(marker, 'click', function() {
-            infoBubble.setContent('<div class="infotext">' + marker.title + '</div>');
+            infoBubble.setContent('<div class="infotext">' + this.html + '</div>');
             infoBubble.open(map, this);
           });
           
+          $('#descriptionblock').append('<div>' + data.full+ '</div>');
         });
       }
     });
