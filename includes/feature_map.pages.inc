@@ -10,7 +10,7 @@ define("BRANCHES_MAXIMUM_DISTANCE", 40000);  // = 40km
  * base map display
  */
 function feature_map_page() {
-  global $language; 
+  global $language, $base_url;
   add_map_basics();
   drupal_add_js(array(
     'feature_map' => array(
@@ -18,6 +18,10 @@ function feature_map_page() {
         )
     ), 'setting');
 
+
+  $http_protocol = substr($base_url, 0, 5) == 'https' ? 'https' : 'http';
+
+  drupal_add_js($http_protocol . '://google-maps-utility-library-v3.googlecode.com/svn/trunk/infobubble/src/infobubble-compiled.js ','external');
 
   // the actual output
   $output = '';

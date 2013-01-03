@@ -36,13 +36,11 @@
       });
     }
     else{    
-    load_markers(); 
+      load_markers();
     }
   }
-
-  
   function load_markers(markers) {
-    var loadedMarkers = [];
+
     // don't allow simultaneous loads
     try{xhr.abort();}
     catch(err){}
@@ -68,17 +66,36 @@
         $.each(data, function(pos, data) {
           var marker = new google.maps.Marker({
               position: new google.maps.LatLng(data.lat,data.lng),
-              icon: "/sites/all/modules/dev/feature_map/theme/redmarker.png"
+              icon: "/sites/all/modules/dev/feature_map/theme/redmarker.png",
+              title: data.title,
+              map: map
             });
+            
             // To add the marker to the map, call setMap();
-          marker.setMap(map);
-          loadedMarkers.push(marker);
+          infoBubble = new InfoBubble ({
+            shadowStyle: 1,
+            padding: 0,
+            backgroundColor: 'rgb(57,57,57)',
+            borderRadius: 4,
+            arrowSize: 10,
+            borderWidth: 1,
+            borderColor: '#2c2c2c',
+            disableAutoPan: true,
+            hideCloseButton: true,
+            arrowPosition: 60,
+            backgroundClassName: 'infoBubble',
+            arrowStyle: 2,
+            disableAnimation:true
+          });
+          google.maps.event.addListener(marker, 'click', function() {
+            infoBubble.setContent('<div class="infotext">' + marker.title + '</div>');
+            infoBubble.open(map, this);
+          });
+          
         });
       }
     });
   }
-
-
 
 
 
@@ -87,7 +104,6 @@
     geocoder = new google.maps.Geocoder();
     geocoder.geocode( { 'address': address}, function(results, status) {
       if (status == google.maps.GeocoderStatus.OK) {
-        console.log(map);
         $('#zipcodesearchform .location-error').remove();
         map.setCenter(results[0].geometry.location);
         var marker = new google.maps.Marker({
@@ -104,6 +120,7 @@
   }
   function get_default_location(errorFlag) {
     initialLocation = new google.maps.LatLng(50.833, 4.333);// default to brussels
+    initialLocation = new google.maps.LatLng(46.833, 6.333);// default to switserland
     var cookieLocation = getCookie("location");
     return (!cookieLocation) ? initialLocation : cookieLocation;
   }

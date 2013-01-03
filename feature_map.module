@@ -116,9 +116,9 @@ function feature_map_entity_update($entity, $type) {
         
       }
     // and retrieve coordinates if it is
-//    if($fetch_grid){
-      retrieve_map_coordinates($address, $entity);
-//    }
+    if($fetch_grid){
+//      retrieve_map_coordinates($address, $entity);
+    }
   }
 }
 

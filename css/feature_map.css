@@ -45,3 +45,19 @@ markers :
 http://mapicons.nicolasmollet.com/category/markers/sports/cycling/?custom_color=8a623f&style=
 
 */
+
+/********** INFOWINDOW **********/
+.infoBubble{
+  background: -webkit-gradient(linear,left top,left bottom,color-stop(0, rgb(112,112,112)),color-stop(0.51, rgb(94,94,94)),color-stop(0.52, rgb(57,57,57)));
+  background: -moz-linear-gradient(center top,rgb(112,112,112) 0%,rgb(94,94,94) 51%,rgb(57,57,57) 52%);
+}
+.infotext{
+  text-shadow: 0 -1px 0 #000;
+  color: #fff;
+  font-family: Helvetica Neue, Helvetica, arial;
+  font-size: 14px;
+  line-height: 20px;
+  padding: 4px 15px 4px 15px;
+/*  font-weight: bold;*/
+  background: url(../images/arrow.png) 95% 50% no-repeat;
+}

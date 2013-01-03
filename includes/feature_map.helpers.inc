@@ -42,8 +42,8 @@ function retrieve_map_coordinates($address, $entity, $display = FALSE){
       $countrycheck ? $address[] = map_selected_countries($country) : '';
       $address = implode(',',$address);
       // fetch from google maps
+      if(!empty($address)) {
       $grid = map_fetch_grid($address, $display);
-      dpm($grid);
       if($grid && $display){
         foreach($grid as $placemark){
           $items[$entity->vid][] = $placemark;
@@ -63,6 +63,7 @@ function retrieve_map_coordinates($address, $entity, $display = FALSE){
           ->execute();
       }
     }
+}
 /**
  *  Retrieves lat & lon from google maps api
  * @param type $address a string
@@ -75,7 +76,6 @@ function map_fetch_grid($address, $display = FALSE){
   $url .= "&sensor=false";
 
   $ret = drupal_http_request($url);
-  dpm($ret);
   if ($ret->code == 200) {
     $data = json_decode($ret->data);
     if ($display) {
@@ -86,6 +86,9 @@ function map_fetch_grid($address, $display = FALSE){
     else{
       if(count($data->results) > 1){
         watchdog('Google Maps', t('Multiple locations found for '. l($url, $url)));
+      }
+      elseif(empty($data->results)) {
+        watchdog('Google Maps', t('No results found for '. l($url, $url)));
       }
       else{
         $result = $data->results[0];
