@@ -25,7 +25,8 @@
 
 #zipcodesearchform{
   display:inline-block;
-  background-color:#DDD;
+  background-color:#2D2D2D;
+  color:whitesmoke;
   top:60px;
   right:10px;
   position:absolute;

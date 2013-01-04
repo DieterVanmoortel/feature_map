@@ -43,7 +43,6 @@ function retrieve_map_coordinates($address, $entity, $display = FALSE){
       $address = implode(',',$address);
       // fetch from google maps
       $grid = map_fetch_grid($address, $display);
-      dpm($grid);
       if($grid && $display){
         foreach($grid as $placemark){
           $items[$entity->vid][] = $placemark;
@@ -75,7 +74,6 @@ function map_fetch_grid($address, $display = FALSE){
   $url .= "&sensor=false";
 
   $ret = drupal_http_request($url);
-  dpm($ret);
   if ($ret->code == 200) {
     $data = json_decode($ret->data);
     if ($display) {

@@ -116,9 +116,9 @@ function feature_map_entity_update($entity, $type) {
         
       }
     // and retrieve coordinates if it is
-//    if($fetch_grid){
+    if($fetch_grid){
       retrieve_map_coordinates($address, $entity);
-//    }
+    }
   }
 }
 
@@ -190,7 +190,7 @@ function feature_map_form_alter(&$form, &$form_state, $form_id){
 function feature_map_entity_preview($lat, $lon) {
   add_map_basics();
   drupal_add_js(array(
-    'feature_map' => array(
+    'featureMap' => array(
         'lat' => $lat,
         'lng' => $lon,
     )
@@ -203,5 +203,5 @@ function feature_map_entity_preview($lat, $lon) {
 }
 
 function feature_map_node_delete() {
-  
+  // when node gets deleted : delete from map_coordinates
 }

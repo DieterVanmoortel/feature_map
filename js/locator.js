@@ -10,7 +10,7 @@
       $('#zipcodesearchform .location-submit').bind('click', function(e){
         e.preventDefault();
         var address = $('#zipcodesearchform #location').val();
-        lookupAddress(address);
+        buildMap(address);
       });
 
       /* Filtering */
@@ -20,8 +20,9 @@
   }
 
   function gmap_init(){
-    if (Drupal.settings.feature_map.lat && Drupal.settings.feature_map.lng) {
-      var myLatlng = new google.maps.LatLng(Drupal.settings.feature_map.lat,Drupal.settings.feature_map.lng);
+    // for content preview
+    if (Drupal.settings.featureMap.lat && Drupal.settings.featureMap.lng) {
+      var myLatlng = new google.maps.LatLng(Drupal.settings.featureMap.lat,Drupal.settings.featureMap.lng);
       var myOptions = {
         zoom: 10,
         center: myLatlng,
@@ -35,8 +36,10 @@
         map: map
       });
     }
+    // for the general map
     else{    
-    load_markers(); 
+      buildMap();
+//      load_markers(); 
     }
   }
 
@@ -50,25 +53,20 @@
     if(typeof(markers) == 'undefined'){
       var markers = 'initial';
     }
+
     
     xhr = $.ajax({
       type: 'POST',
-      url: Drupal.settings.feature_map.ajaxPath,
+      url: Drupal.settings.featureMap.ajaxPath,
       data: {
         markers: markers
       },
       success : function(data) {
-        var myOptions = {
-          scrollwheel: false,
-          zoom: 7,
-          center: get_default_location(), 
-          mapTypeId: google.maps.MapTypeId.TERRAIN
-        };
-        map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+        
         $.each(data, function(pos, data) {
           var marker = new google.maps.Marker({
               position: new google.maps.LatLng(data.lat,data.lng),
-              icon: "/sites/all/modules/dev/feature_map/theme/redmarker.png"
+              icon:  Drupal.settings.featureMap.modulePath + '/theme/redmarker.png'
             });
             // To add the marker to the map, call setMap();
           marker.setMap(map);
@@ -78,49 +76,74 @@
     });
   }
 
-
-
-
-
-  function lookupAddress(address){
-    var geocoder;
-    geocoder = new google.maps.Geocoder();
-    geocoder.geocode( { 'address': address}, function(results, status) {
+  function buildMap(address) {
+    var myOptions = {
+      scrollwheel: false,
+      zoom: 7,
+      center: get_default_location(), 
+      mapTypeId: google.maps.MapTypeId.TERRAIN
+    };
+    map = new google.maps.Map(document.getElementById("map_canvas"), myOptions); 
+    if(typeof(address) == 'undefined'){
+      var location = get_default_location();
+    }
+    else {
+      var geocoder;
+      geocoder = new google.maps.Geocoder(); 
+      geocoder.geocode( { 'address': address}, function(results, status) {
       if (status == google.maps.GeocoderStatus.OK) {
-        console.log(map);
+        var location = results[0].geometry.location;
         $('#zipcodesearchform .location-error').remove();
-        map.setCenter(results[0].geometry.location);
-        var marker = new google.maps.Marker({
-            map: map,
-            title: address,
-            position: results[0].geometry.location,
-            icon: "/sites/all/modules/dev/feature_map/theme/greenmarker.png"
-        });
+        map.setCenter(location);
+        setLocationCookie(location);
       }
       else{
         $('#zipcodesearchform').append('<div class="location-error">' + Drupal.t('No results found') + '</div>');
       }
-    });
+      });
+    }
+    console.log('test');
+    var marker = new google.maps.Marker({
+      map: map,
+      position: location,
+      icon: Drupal.settings.featureMap.modulePath + '/theme/blackmarker.png'
+    });   
+    marker.setMap(map);
   }
-  function get_default_location(errorFlag) {
-    initialLocation = new google.maps.LatLng(50.833, 4.333);// default to brussels
+  function get_default_location() {
+    var location = new google.maps.LatLng(50.833, 4.333);// default to brussels
     var cookieLocation = getCookie("location");
-    return (!cookieLocation) ? initialLocation : cookieLocation;
+    if(cookieLocation) {
+      cookieLocation = cookieLocation.replace('(', '').replace(')', '').split(',');
+      location = new google.maps.LatLng(parseFloat(cookieLocation[0]), parseFloat(cookieLocation[1]));
+    }
+    return location;
   }
 
   function getCookie(c_name) {
-  var i,x,y,ARRcookies = document.cookie.split(";");
-  for (i = 0; i < ARRcookies.length; i++) {
-    x = ARRcookies[i].substr(0, ARRcookies[i].indexOf("="));
-    y = ARRcookies[i].substr(ARRcookies[i].indexOf("=") + 1);
-    x = x.replace(/^\s+|\s+$/g, "");
-    if (x == c_name) {
-      return unescape(y);
+    var i,x,y,ARRcookies = document.cookie.split(";");
+    for (i = 0; i < ARRcookies.length; i++) {
+      x = ARRcookies[i].substr(0, ARRcookies[i].indexOf("="));
+      y = ARRcookies[i].substr(ARRcookies[i].indexOf("=") + 1);
+      x = x.replace(/^\s+|\s+$/g, "");
+      if (x == c_name) {
+        return unescape(y);
+      }
     }
-  }
-  return false;
+    return false;
   }
   
+  function setLocationCookie(locationObject) {
+    setCookie('location', locationObject.toString());
+  }
+  
+  function setCookie(c_name,value,exdays) {
+    var exdate=new Date();
+    exdate.setDate(exdate.getDate() + exdays);
+    var c_value=escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
+    document.cookie=c_name + "=" + c_value;
+  }
+
 })(jQuery);
 
 

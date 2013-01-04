@@ -1,5 +1,5 @@
 name = Feature map
-description = Customizable map by Nascom
+description = Show your content on a map
 version = 7.x-dev
 
 package = Features

@@ -13,8 +13,9 @@ function feature_map_page() {
   global $language; 
   add_map_basics();
   drupal_add_js(array(
-    'feature_map' => array(
+    'featureMap' => array(
         'ajaxPath' => base_path() . 'ajax/locator',
+        'modulePath' => drupal_get_path('module', 'feature_map'),
         )
     ), 'setting');
 
