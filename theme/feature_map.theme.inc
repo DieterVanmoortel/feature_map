@@ -22,10 +22,39 @@ function feature_map_theme($existing, $type, $theme, $path) {
       'arguments' => array('node' => NULL  ),
   ) + $defaults;
 
+  $items['mapview'] = array(
+      'arguments' => array('marker' => NULL  ),
+  ) + $defaults;
+  $items['entity_preview'] = array(
+      'arguments' => array(
+        'lat' => NULL,
+        'lon' => NULL
+        ),
+  ) + $defaults;
+
   return $items;
 }
 
+function theme_entity_preview($lat, $lon){
+  add_map_basics();
+  drupal_add_js(array(
+    'feature_map' => array(
+        'lat' => $lat,
+        'lng' => $lon,
+    )
+  ), 'setting');
 
+  $out = '<div id="preview">';
+  $out .= '<div id="gmap">Loading map...</div>';
+  $out .= '</div>';
+  return $out;
+}
+
+function theme_listing($data) {
+    // Q: use display suite or make a custom listing field?
+
+  return $data;
+}
 /*
  * Theme callback for the description block
  */
@@ -45,7 +74,7 @@ function theme_map_location($vars) {
   $output = '';
   $output .= '<div id="zipcodesearchform">';
   $output .= '<label for="edit-search">' . t('Enter your postal code, or a street and city') .'</label>';
-  $output .= '<input class="form-text" type="text" id="location" value="" size="60" maxlength="128" />';
+  $output .= '<input class="form-text" type="text" id="location" value="" maxlength="128" />';
   $output .= '<input class="location-submit" type="submit" value="' . t('Search') . '" />';
   $output .= '</div>';
   return $output;
@@ -64,16 +93,6 @@ function theme_map_filters() {
   $output .= '</p><div id="slider-range"></div></div>';
   $output .= '<div id="categories" class="clear-block">';
   $output .= '<h3>' . t('Filter results') . '</h3>';
-  $output .= '<h3>' . t('Replace by an actual form? ') . '</h3>';
-
-  $options = array('option1', 'option2');
-  $items = array();
-
-  foreach ((array) $options as $option) {
-    $items[] = '<label><input name="category" id="category_' . $option . '" value="' . $option . '" type="checkbox"><span class="title" title="' . t('[' . $option . ' description]') . '">' . t($option) . '</span></label>';
-  }
-
-  $output .= theme('item_list', array('items' => $items, 'attributes' => array('class' => array('filter-selection'))));
 
   $output .= '</div>';
 

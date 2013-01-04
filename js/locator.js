@@ -10,42 +10,44 @@
       $('#zipcodesearchform .location-submit').bind('click', function(e){
         e.preventDefault();
         var address = $('#zipcodesearchform #location').val();
-        buildMap(address);
+        lookupAddress(address);
       });
 
       /* Filtering */
       
-
     }
   }
 
   function gmap_init(){
     // for content preview
     if (Drupal.settings.featureMap.lat && Drupal.settings.featureMap.lng) {
-      var myLatlng = new google.maps.LatLng(Drupal.settings.featureMap.lat,Drupal.settings.featureMap.lng);
-      var myOptions = {
-        zoom: 10,
-        center: myLatlng,
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-        disableDefaultUI: true
-      }
-      var map = new google.maps.Map(document.getElementById("gmap"), myOptions);
-
-      var marker = new google.maps.Marker({
-        position: myLatlng,
-        map: map
-      });
+      set_preview_marker();
     }
     // for the general map
     else{    
-      buildMap();
-//      load_markers(); 
+      load_markers();
     }
   }
 
+  function set_preview_marker() {
+    var myLatlng = new google.maps.LatLng(Drupal.settings.feature_map.lat,Drupal.settings.feature_map.lng);
+    var myOptions = {
+      zoom: 8,
+      center: myLatlng,
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      disableDefaultUI: true
+    }
+    var map = new google.maps.Map(document.getElementById("gmap"), myOptions);
+
+    var marker = new google.maps.Marker({
+      position: myLatlng,
+      map: map
+    });
+  }
+  
   
   function load_markers(markers) {
-    var loadedMarkers = [];
+
     // don't allow simultaneous loads
     try{xhr.abort();}
     catch(err){}
@@ -62,56 +64,74 @@
         markers: markers
       },
       success : function(data) {
-        
+        var myOptions = {
+          scrollwheel: false,
+          zoom: 7,
+          center: get_default_location(), 
+          mapTypeId: google.maps.MapTypeId.TERRAIN
+        };
+        map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
         $.each(data, function(pos, data) {
           var marker = new google.maps.Marker({
               position: new google.maps.LatLng(data.lat,data.lng),
-              icon:  Drupal.settings.featureMap.modulePath + '/theme/redmarker.png'
+              icon:  Drupal.settings.featureMap.modulePath + '/theme/redmarker.png',
+              html: data.teaser,
+              id: pos,
+              map: map
             });
+            
             // To add the marker to the map, call setMap();
-          marker.setMap(map);
-          loadedMarkers.push(marker);
+          infoBubble = new InfoBubble ({
+            shadowStyle: 1,
+            padding: 0,
+            backgroundColor: 'rgb(57,57,57)',
+            borderRadius: 4,
+            arrowSize: 10,
+            borderWidth: 1,
+            borderColor: '#2c2c2c',
+            disableAutoPan: true,
+            hideCloseButton: true,
+            arrowPosition: 60,
+            backgroundClassName: 'infoBubble',
+            arrowStyle: 2,
+            disableAnimation:true
+          });
+          google.maps.event.addListener(marker, 'click', function() {
+            infoBubble.setContent('<div class="infotext">' + this.html + '</div>');
+            infoBubble.open(map, this);
+          });
+          
+          $('#map_listing').append(data.full);
         });
       }
     });
   }
 
-  function buildMap(address) {
-    var myOptions = {
-      scrollwheel: false,
-      zoom: 7,
-      center: get_default_location(), 
-      mapTypeId: google.maps.MapTypeId.TERRAIN
-    };
-    map = new google.maps.Map(document.getElementById("map_canvas"), myOptions); 
-    if(typeof(address) == 'undefined'){
-      var location = get_default_location();
-    }
-    else {
-      var geocoder;
-      geocoder = new google.maps.Geocoder(); 
-      geocoder.geocode( { 'address': address}, function(results, status) {
+  function lookupAddress(address){
+    var geocoder;
+    geocoder = new google.maps.Geocoder();
+    geocoder.geocode( { 'address': address}, function(results, status) {
       if (status == google.maps.GeocoderStatus.OK) {
-        var location = results[0].geometry.location;
         $('#zipcodesearchform .location-error').remove();
+        var location = results[0].geometry.location;
         map.setCenter(location);
         setLocationCookie(location);
+        var marker = new google.maps.Marker({
+            map: map,
+            title: address,
+            position: location,
+            icon: Drupal.settings.featureMap.modulePath + "/theme/blackmarker.png"
+        });
       }
       else{
         $('#zipcodesearchform').append('<div class="location-error">' + Drupal.t('No results found') + '</div>');
       }
-      });
-    }
-    console.log('test');
-    var marker = new google.maps.Marker({
-      map: map,
-      position: location,
-      icon: Drupal.settings.featureMap.modulePath + '/theme/blackmarker.png'
-    });   
-    marker.setMap(map);
+    });
   }
+
   function get_default_location() {
-    var location = new google.maps.LatLng(50.833, 4.333);// default to brussels
+    initialLocation = new google.maps.LatLng(50.833, 4.333);// default to brussels
+    var location = new google.maps.LatLng(46.833, 6.333);// default to switserland
     var cookieLocation = getCookie("location");
     if(cookieLocation) {
       cookieLocation = cookieLocation.replace('(', '').replace(')', '').split(',');

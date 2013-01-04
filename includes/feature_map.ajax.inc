@@ -10,9 +10,11 @@ function feature_map_locator_json() {
   $markers = load_all_markers();
 
   if($data <> 'initial') {
-    dpm($markers);
     // do some extra filtering
   }
+
+  
+
 //  return 'dev output'; //dev
   return drupal_json_output($markers);
 }
@@ -20,7 +22,7 @@ function feature_map_locator_json() {
 
 function load_all_markers(){ 
   $stored_markers = &drupal_static(__FUNCTION__);
-  if (isset($stored_markers)) {return $stored_markers; }
+//  if (isset($stored_markers)) {return $stored_markers; }
   
   $markers = array();
   $entities = db_query('SELECT * FROM {map_coordinates}')->fetchAll();
@@ -42,8 +44,12 @@ function load_all_markers(){
           $marker[$filter] = $fieldvalue[0]['value'];
         }
       }
-      
-      $markers[] = $marker;
+      $markers[] = array(
+        'lat' => $marker['lat'],
+        'lng' => $marker['lng'],
+        'teaser' => $marker['title'],
+        'full' => '<li>' . $marker['title'] . '</li>',
+      );
     }
   }
   $stored_markers = $markers;

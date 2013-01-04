@@ -1,5 +1,8 @@
 .page-map .centered{width:100%}
-.page-map .centered #content{width:100%}
+.page-map .centered #content{
+  width:100%;
+  background-color:#2D2D2D;
+}
 
 /* MAP PREVIEW */
 #gmap-preview #preview{float:right;}
@@ -7,8 +10,8 @@
 #gmap-preview #gmap{width:350px; height:250px;}
 #gmap-preview a{float:left;}
 
-#map_wrapper {position:relative; height:80%; width: 100%;display:block;}
-#map_canvas {height: 750px; width:100%; float:left;}
+#map_wrapper {position:relative; height:80%; width:100%;display:block;}
+#map_canvas {height: 750px; width:80%; float:left;}
 
 
 
@@ -25,11 +28,6 @@
 
 #zipcodesearchform{
   display:inline-block;
-  background-color:#2D2D2D;
-  color:whitesmoke;
-  top:60px;
-  right:10px;
-  position:absolute;
   padding:10px;
 }
 
@@ -41,8 +39,33 @@
 .ui-widget-header{height:20px;}
 .ui-widget-content{height:22px; position:relative;}
 
-/*
-markers :
-http://mapicons.nicolasmollet.com/category/markers/sports/cycling/?custom_color=8a623f&style=
 
-*/
+/********** INFOWINDOW **********/
+.infoBubble{
+
+}
+.infotext{
+  text-shadow: 0 -1px 0 #000;
+  color: #fff;
+  font-family: Helvetica Neue, Helvetica, arial;
+  font-size: 14px;
+  line-height: 20px;
+  padding: 4px 15px 4px 15px;
+}
+.infodetails{
+  border:1px solid green;
+  
+}
+
+/*********** LISTING ********/
+#map_listing{
+  display:inline-block;
+  padding:0;
+  width:20%;
+}
+#map_listing li{
+  background-color:black;
+  color:white;
+  display:block;
+  padding:10px 8px;
+}
