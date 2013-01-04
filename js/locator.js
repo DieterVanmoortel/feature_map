@@ -15,9 +15,6 @@
 
       /* Filtering */
       
-      $('.triggerdetails').bind('click', function(e){
-        $('.infodetails').toggle();
-      })
     }
   }
 
@@ -99,7 +96,7 @@
             infoBubble.open(map, this);
           });
           
-          $('#descriptionblock').append('<div>' + data.full+ '</div>');
+          $('#map_listing').append(data.full);
         });
       }
     });

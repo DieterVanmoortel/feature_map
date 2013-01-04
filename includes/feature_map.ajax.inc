@@ -48,7 +48,7 @@ function load_default_markers(){
         'lat' => $marker['lat'],
         'lng' => $marker['lng'],
         'teaser' => $marker['title'],
-        'full' => $marker['title']  . ' listing html',
+        'full' => '<li>' . $marker['title'] . '</li>',
       );
     }
   }

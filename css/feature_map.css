@@ -28,10 +28,7 @@
 
 #zipcodesearchform{
   display:inline-block;
-  background-color:#DDD;
-  top:60px;
-  right:10px;
-  position:absolute;
+  color:white;
   padding:10px;
 }
 
@@ -59,4 +56,17 @@
 .infodetails{
   border:1px solid green;
   
+}
+
+/*********** LISTING ********/
+#map_listing{
+  display:inline-block;
+  padding:0;
+  width:20%;
+}
+#map_listing li{
+  background-color:black;
+  color:white;
+  display:block;
+  padding:10px 8px;
 }

@@ -1,8 +1,19 @@
 <?php
 /**
  * @file
- * Code for the Feature Branches feature.
+ * Hooks for feature map module
  */
+
+
+/*
+ * TODO :
+ *
+ * - cleanup of map_coordinates table
+ * 
+ */
+
+
+
 module_load_include('inc', 'feature_map', 'includes/feature_map.helpers');
 module_load_include('inc', 'feature_map', 'includes/feature_map.variable');
 module_load_include('inc', 'feature_map', 'theme/feature_map.theme');
@@ -117,7 +128,7 @@ function feature_map_entity_update($entity, $type) {
       }
     // and retrieve coordinates if it is
     if($fetch_grid){
-//      retrieve_map_coordinates($address, $entity);
+      retrieve_map_coordinates($address, $entity);
     }
   }
 }
@@ -187,6 +198,7 @@ function feature_map_form_alter(&$form, &$form_state, $form_id){
 }
 
 
+/* replace with theme function? 
 function feature_map_entity_preview($lat, $lon) {
   add_map_basics();
   drupal_add_js(array(
@@ -201,7 +213,4 @@ function feature_map_entity_preview($lat, $lon) {
   $out .= '</div>';
   return $out;
 }
-
-function feature_map_node_delete() {
-  
-}
+*/

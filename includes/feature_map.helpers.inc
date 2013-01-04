@@ -70,14 +70,14 @@ function retrieve_map_coordinates($address, $entity, $display = FALSE){
  * @return stdClass 
  */
 function map_fetch_grid($address, $display = FALSE){
-  // todo; check if we don't need an urlencode or htmlentities around $address
+  
   $url = "http://maps.googleapis.com/maps/api/geocode/json?address=";
   $url .= $address;
   $url .= "&sensor=false";
-
-  $ret = drupal_http_request($url);
-  if ($ret->code == 200) {
-    $data = json_decode($ret->data);
+  $call = drupal_http_request($url);
+  
+  if ($call->code == 200) {
+    $data = json_decode($call->data);
     if ($display) {
       // use this function to display a list of found lat/lon or multiple possibilities?
       dpm('needs work!!! ');
@@ -151,28 +151,28 @@ function order_by_ranking($agents) {
 }
 
 function map_selected_countries($value = FALSE){
-//  $countries = country_get_list();
-  $t = get_t();
-  $countries = array(
-//    'AT' => $t('Austria'), 
-    'BE' => $t('Belgium'), 
-//    'CH' => $t('Switzerland'), 
-    'DE' => $t('Germany'), 
-//    'DK' => $t('Denmark'), 
-//    'ES' => $t('Spain'), 
-//    'FI' => $t('Finland'), 
-    'FR' => $t('France'), 
-    'GB' => $t('United Kingdom'), 
-//    'GR' => $t('Greece'), 
-//    'IT' => $t('Italy'), 
-    'LU' => $t('Luxembourg'), 
-    'NL' => $t('Netherlands'), 
-//    'NO' => $t('Norway'), 
-//    'PL' => $t('Poland'), 
-//    'PT' => $t('Portugal'), 
-//    'SE' => $t('Sweden'), 
-//    'US' => $t('United States'), 
-  );
+  $countries = country_get_list();
+//  $t = get_t();
+//  $countries = array(
+//    'AT' => $t('Austria'),
+//    'BE' => $t('Belgium'),
+//    'CH' => $t('Switzerland'),
+//    'DE' => $t('Germany'),
+////    'DK' => $t('Denmark'),
+//    'ES' => $t('Spain'),
+////    'FI' => $t('Finland'),
+//    'FR' => $t('France'),
+//    'GB' => $t('United Kingdom'),
+////    'GR' => $t('Greece'),
+//    'IT' => $t('Italy'),
+//    'LU' => $t('Luxembourg'),
+//    'NL' => $t('Netherlands'),
+////    'NO' => $t('Norway'),
+//    'PL' => $t('Poland'),
+////    'PT' => $t('Portugal'),
+////    'SE' => $t('Sweden'),
+////    'US' => $t('United States'),
+//  );
   if($value){
     return $countries[$value];
   }
