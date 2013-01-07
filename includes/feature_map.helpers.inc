@@ -1,5 +1,4 @@
 <?php
-// better add this to the variables
 
 /*
  * Submit handler

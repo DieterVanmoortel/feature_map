@@ -10,8 +10,7 @@
       $('#zipcodesearchform .location-submit').bind('click', function(e){
         e.preventDefault();
         var address = $('#zipcodesearchform #location').val();
-        var location = getLocation(address);
-        centerMapOn();
+        centerMapOn(address);
       });
 
       /* Filtering */
@@ -46,26 +45,7 @@
     });
   }
   
-  function getLocation(address){
-    if(typeof(address) == 'undefined') {
-      var location = getDefaultLocation();
-    }
-    else {
-      var geocoder = new google.maps.Geocoder();
-      geocoder.geocode( { 'address': address}, function(results, status) {
-      if (status == google.maps.GeocoderStatus.OK) {
-        $('#zipcodesearchform .location-error').remove();
-        var location = results[0].geometry.location;     
-      }
-      else{
-        $('#zipcodesearchform').append('<div class="location-error">' + Drupal.t('No results found') + '</div>');
-      }
-    });
-    }
-    return location;
-  }
-
-
+  
   function load_markers(markers) {
 
     // don't allow simultaneous loads
@@ -136,7 +116,18 @@
   }
 
   function centerMapOn(address){
-
+    if(typeof(address) == 'undefined') {
+     var geocoder = new google.maps.Geocoder();
+    geocoder.geocode( { 'address': address}, function(results, status) {
+      if (status == google.maps.GeocoderStatus.OK) {
+        $('#zipcodesearchform .location-error').remove();
+        var location = results[0].geometry.location;     
+      }
+      else{
+        $('#zipcodesearchform').append('<div class="location-error">' + Drupal.t('No results found') + '</div>');
+      }
+    });
+  }
 
   map.setCenter(location);
   setLocationCookie(location);

@@ -198,7 +198,7 @@ function feature_map_form_alter(&$form, &$form_state, $form_id){
 }
 
 
-/* replace with theme function? 
+//replace with theme function? 
 function feature_map_entity_preview($lat, $lon) {
   add_map_basics();
   drupal_add_js(array(
@@ -213,4 +213,4 @@ function feature_map_entity_preview($lat, $lon) {
   $out .= '</div>';
   return $out;
 }
-*/
+
