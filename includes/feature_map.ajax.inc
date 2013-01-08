@@ -22,7 +22,7 @@ function feature_map_locator_json() {
 
 function load_all_markers(){ 
   $stored_markers = &drupal_static(__FUNCTION__);
-//  if (isset($stored_markers)) {return $stored_markers; }
+  if (isset($stored_markers)) {return $stored_markers; }
   
   $markers = array();
   $entities = db_query('SELECT * FROM {map_coordinates}')->fetchAll();

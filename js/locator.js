@@ -1,25 +1,27 @@
 (function($) {
-
+  var map;
+  var markers = [];
 
   Drupal.behaviors.GmapLocator = {
     attach: function(context) {  
       /*  Preview image */
-    if (Drupal.settings.featureMap.lat && Drupal.settings.featureMap.lng) {
-      set_preview_marker();
-    }
-    /*  Basic Map Page */
-    else{
-      $('#zipcodesearchform .location-submit').bind('click', function(e){
-        e.preventDefault();
-        var address = $('#zipcodesearchform #location').val();
-        buildMapAround(address);
+      if (Drupal.settings.featureMap.lat && Drupal.settings.featureMap.lng) {
+        set_preview_marker();
+      }
+      /*  Basic Map Page */
+      else{
+        // Default build
+          buildMapAround('default');
+          
+        // use location search box
+        $('#zipcodesearchform .location-submit').bind('click', function(e){
+          e.preventDefault();
+          var address = $('#zipcodesearchform #location').val();
+          buildMapAround(address);
 
-      });
-      buildMapAround();
-    }
+        });
 
-
-      
+      }
     }
   }
 
@@ -43,13 +45,13 @@
   }
   
   function buildMapAround(address){
-    if(typeof(address) == 'undefined') {
+    if(address == 'default') {
       var location = getDefaultLocation();
       centerMapOn(location);
     }
     else {
       var geocoder = new google.maps.Geocoder();
-      geocoder.geocode( { 'address': address}, function(results, status) {
+      geocoder.geocode( {'address': address}, function(results, status) {
         if (status == google.maps.GeocoderStatus.OK) {
           $('#zipcodesearchform .location-error').remove();
           var location = results[0].geometry.location;
@@ -117,10 +119,10 @@
             infoBubble.setContent('<div class="infotext">' + this.html + '</div>');
             infoBubble.open(map, this);
             $('#map_listing li').removeClass('active');
-            $('.marker-' + marker.id).addClass('active');
+            $('#marker-' + marker.id).addClass('active');
           });
           
-          $('#map_listing').append('<li class="marker-' + marker.id + '">' + data.full +  marker.id +  '</li>');
+          $('#map_listing').append('<li id="marker-' + marker.id + '">' + data.full +  marker.id +  '</li>');
         });
       }
     });
