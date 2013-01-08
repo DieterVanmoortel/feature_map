@@ -48,7 +48,7 @@ function load_all_markers(){
         'lat' => $marker['lat'],
         'lng' => $marker['lng'],
         'teaser' => $marker['title'],
-        'full' => '<li>' . $marker['title'] . '</li>',
+        'full' => $marker['title'],
       );
     }
   }

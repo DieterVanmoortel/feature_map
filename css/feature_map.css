@@ -64,8 +64,11 @@
   width:20%;
 }
 #map_listing li{
-  background-color:black;
+  background-color:#2D2D2D;
   color:white;
   display:block;
   padding:10px 8px;
+}
+#map_listing li.active{
+  background-color:black;
 }

@@ -1,34 +1,30 @@
 (function($) {
 
-  /*  Preview image */
-  Drupal.behaviors.GmapLocator = {
-    attach: function(context) {
-      /* Initialise google maps */
-      gmap_init();
 
-      /* address lookup */
+  Drupal.behaviors.GmapLocator = {
+    attach: function(context) {  
+      /*  Preview image */
+    if (Drupal.settings.featureMap.lat && Drupal.settings.featureMap.lng) {
+      set_preview_marker();
+    }
+    /*  Basic Map Page */
+    else{
       $('#zipcodesearchform .location-submit').bind('click', function(e){
         e.preventDefault();
         var address = $('#zipcodesearchform #location').val();
-        var location = getLocation(address);
-        centerMapOn();
-      });
+        buildMapAround(address);
 
-      /* Filtering */
+      });
+      buildMapAround();
+    }
+
+
       
     }
   }
 
-  function gmap_init(){
-    // for content preview
-    if (Drupal.settings.featureMap.lat && Drupal.settings.featureMap.lng) {
-      set_preview_marker();
-    }
-    // for the general map
-    else{    
-      load_markers();
-    }
-  }
+
+/* FUNCTIONS */
 
   function set_preview_marker() {
     var myLatlng = new google.maps.LatLng(Drupal.settings.feature_map.lat,Drupal.settings.feature_map.lng);
@@ -46,37 +42,36 @@
     });
   }
   
-  function getLocation(address){
+  function buildMapAround(address){
     if(typeof(address) == 'undefined') {
       var location = getDefaultLocation();
+      centerMapOn(location);
     }
     else {
       var geocoder = new google.maps.Geocoder();
       geocoder.geocode( { 'address': address}, function(results, status) {
-      if (status == google.maps.GeocoderStatus.OK) {
-        $('#zipcodesearchform .location-error').remove();
-        var location = results[0].geometry.location;     
-      }
-      else{
-        $('#zipcodesearchform').append('<div class="location-error">' + Drupal.t('No results found') + '</div>');
-      }
-    });
+        if (status == google.maps.GeocoderStatus.OK) {
+          $('#zipcodesearchform .location-error').remove();
+          var location = results[0].geometry.location;
+          centerMapOn(location);
+          setLocationCookie(location);
+        }
+        else{
+          $('#zipcodesearchform').append('<div class="location-error">' + Drupal.t('No results found') + '</div>');
+        }
+      });
     }
-    return location;
   }
 
 
-  function load_markers(markers) {
+  function load_markers(map) {
 
     // don't allow simultaneous loads
     try{xhr.abort();}
     catch(err){}
     
-    if(typeof(markers) == 'undefined'){
-      var markers = 'initial';
-    }
+    var markers = 'initial'; // devQ: filter on markers in ajax or with js???
 
-    
     xhr = $.ajax({
       type: 'POST',
       url: Drupal.settings.featureMap.ajaxPath,
@@ -85,13 +80,7 @@
       },
       success : function(data) {
         var location = getDefaultLocation();
-        var myOptions = {
-          scrollwheel: false,
-          zoom: 7,
-          center: location, 
-          mapTypeId: google.maps.MapTypeId.TERRAIN
-        };
-        map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+
         
         var marker = new google.maps.Marker({
               position: location,
@@ -127,25 +116,31 @@
           google.maps.event.addListener(marker, 'click', function() {
             infoBubble.setContent('<div class="infotext">' + this.html + '</div>');
             infoBubble.open(map, this);
+            $('#map_listing li').removeClass('active');
+            $('.marker-' + marker.id).addClass('active');
           });
           
-          $('#map_listing').append(data.full);
+          $('#map_listing').append('<li class="marker-' + marker.id + '">' + data.full +  marker.id +  '</li>');
         });
       }
     });
   }
 
-  function centerMapOn(address){
-
-
-  map.setCenter(location);
-  setLocationCookie(location);
-  var marker = new google.maps.Marker({
-    map: map,
-    title: address,
-    position: location,
-    icon: Drupal.settings.featureMap.modulePath + "/theme/blackmarker.png"
-  });
+  function centerMapOn(location) {
+    var mapOptions = {
+      scrollwheel: false,
+      zoom: 7,
+      center: location,
+      mapTypeId: google.maps.MapTypeId.TERRAIN
+    };
+    map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+    map.setCenter(location);
+    var marker = new google.maps.Marker({
+      map: map,
+      position: location,
+      icon: Drupal.settings.featureMap.modulePath + "/theme/blackmarker.png"
+    });
+    load_markers(map);
   }
 
   function getDefaultLocation() {
@@ -172,7 +167,7 @@
   }
   
   function setLocationCookie(locationObject) {
-    setCookie('location', locationObject.toString(), 24);
+    setCookie('location', locationObject.toString());
   }
   
   function setCookie(c_name,value,exdays) {
