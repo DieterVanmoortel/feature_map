@@ -11,7 +11,7 @@
 #gmap-preview a{float:left;}
 
 #map_wrapper {position:relative; height:80%; width:100%;display:block;}
-#map_canvas {height: 750px; width:80%; float:left;}
+#map_canvas {height: 1000px; width:80%; float:left;}
 
 
 
@@ -69,6 +69,25 @@
   display:block;
   padding:10px 8px;
 }
+
 #map_listing li.active{
   background-color:black;
+}
+
+/*   TIMELINE */
+#map_timeline{
+  clear:both;
+  background-color:whitesmoke;
+  display:block;
+}
+#map_timeline ul{
+  list-style-type:none;
+}
+#map_timeline ul li{
+  padding:8px 4px;
+  display:inline-block;
+}
+#map_timeline ul li.active{
+  background-color:#2d2d2d;
+  color:whitesmoke;
 }

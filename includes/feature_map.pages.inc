@@ -1,4 +1,9 @@
 <?php
+/*
+ * TODO : allow custom page layout
+ */
+
+
 // Move this to a settings page.. 
 define("BRANCHES_MINIMUM_RESULTSET_COUNT", 7);
 define("BRANCHES_MAXIMUM_RESULTSET_COUNT", 10);
@@ -31,11 +36,12 @@ function feature_map_page() {
   $output .= theme('map_location');
   $output .= '<ul id="map_listing"></ul>';
   $output .= '<div id="map_options">';
-//  $output .= theme('map_description');
+  
   
 //  $output .= theme('map_filters');
   $output .= '</div>';
+  
   $output .= '</div>';
-
+  $output .= theme('map_timeline');
   return $output;
 }

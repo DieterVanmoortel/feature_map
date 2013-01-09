@@ -91,10 +91,12 @@
         });
         
         $.each(data, function(pos, data) {
+          console.log(data);
           var marker = new google.maps.Marker({
               position: new google.maps.LatLng(data.lat,data.lng),
-              icon:  Drupal.settings.featureMap.modulePath + '/theme/redmarker.png',
+              icon:  Drupal.settings.featureMap.modulePath + '/theme/bluesphere.png',
               html: data.teaser,
+              month: data.month,
               id: pos,
               map: map
             });
@@ -104,13 +106,13 @@
             shadowStyle: 1,
             padding: 0,
             backgroundColor: 'rgb(57,57,57)',
-            borderRadius: 4,
-            arrowSize: 10,
+            borderRadius: 0,
+            arrowSize: 20,
             borderWidth: 1,
-            borderColor: '#2c2c2c',
+            borderColor: '#000',
             disableAutoPan: true,
             hideCloseButton: true,
-            arrowPosition: 60,
+            arrowPosition: 0,
             backgroundClassName: 'infoBubble',
             arrowStyle: 2,
             disableAnimation:true
@@ -118,11 +120,12 @@
           google.maps.event.addListener(marker, 'click', function() {
             infoBubble.setContent('<div class="infotext">' + this.html + '</div>');
             infoBubble.open(map, this);
-            $('#map_listing li').removeClass('active');
-            $('#marker-' + marker.id).addClass('active');
+            $('#map_listing li, #map_timeline li').removeClass('active');
+            $('.marker-' + marker.id).addClass('active');
+            $('.month-' + marker.month).parent('li').addClass('active');
           });
           
-          $('#map_listing').append('<li id="marker-' + marker.id + '">' + data.full +  marker.id +  '</li>');
+          $('#map_listing').append('<li class="marker-' + marker.id + '">' + data.full +  marker.id +  '</li>');
         });
       }
     });

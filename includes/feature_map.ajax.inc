@@ -13,7 +13,11 @@ function feature_map_locator_json() {
     // do some extra filtering
   }
 
-  
+  // alter filters by a hook?
+  foreach($markers as $key => $marker){
+    $markers[$key]['month'] =  format_date($marker['field_event_date'], 'custom', 'M');
+
+  }
 
 //  return 'dev output'; //dev
   return drupal_json_output($markers);
@@ -22,7 +26,7 @@ function feature_map_locator_json() {
 
 function load_all_markers(){ 
   $stored_markers = &drupal_static(__FUNCTION__);
-  if (isset($stored_markers)) {return $stored_markers; }
+//  if (isset($stored_markers)) {return $stored_markers; }
   
   $markers = array();
   $entities = db_query('SELECT * FROM {map_coordinates}')->fetchAll();
@@ -31,7 +35,8 @@ function load_all_markers(){
     if ($full_entity) {
       $full_entity = $full_entity[$entity->entity_id];
       $marker = array(
-        'title' => $full_entity->title,
+        'teaser' => $full_entity->title,
+        'full' => $full_entity->title,
         'lat' => $entity->lat,
         'lng' => $entity->lon,
         'id' => $entity->entity_id
@@ -44,12 +49,8 @@ function load_all_markers(){
           $marker[$filter] = $fieldvalue[0]['value'];
         }
       }
-      $markers[] = array(
-        'lat' => $marker['lat'],
-        'lng' => $marker['lng'],
-        'teaser' => $marker['title'],
-        'full' => $marker['title'],
-      );
+      $markers[] = $marker;
+      // add filters?
     }
   }
   $stored_markers = $markers;

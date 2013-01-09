@@ -25,6 +25,11 @@ function feature_map_theme($existing, $type, $theme, $path) {
   $items['mapview'] = array(
       'arguments' => array('marker' => NULL  ),
   ) + $defaults;
+  
+  $items['map_timeline'] = array(
+      'arguments' => array('markers' => NULL ),
+  ) + $defaults;
+
   $items['entity_preview'] = array(
       'arguments' => array(
         'lat' => NULL,
@@ -65,6 +70,12 @@ function theme_map_description($vars){
   return $output;
 }
 
+function theme_map_timeline($vars) {
+  $out = '<div id="map_timeline">';
+  $out .= theme('item_list', array('items' => array('<span class="month-Jan">Jan</span>', 'Feb', '<span class="month-Jun">Jun</span>',  'Apr', 'Mai')));
+  $out .= '</div>';
+  return $out;
+}
 
 
 /*
