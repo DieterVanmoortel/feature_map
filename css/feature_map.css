@@ -5,10 +5,10 @@
 }
 
 /* MAP PREVIEW */
-#gmap-preview #preview{float:right;}
-#gmap-preview .coordinates{float:left; display:inline;}
+/*#gmap-preview #preview{float:right;}*/
+/*#gmap-preview .coordinates{float:left; display:inline;}*/
 #gmap-preview #gmap{width:350px; height:250px;}
-#gmap-preview a{float:left;}
+/*#gmap-preview a{float:left;}*/
 
 #map_wrapper {position:relative; height:80%; width:100%;display:block;}
 #map_canvas {height: 1000px; width:80%; float:left;}
@@ -66,12 +66,12 @@
 #map_listing li{
   background-color:#2D2D2D;
   color:white;
-  display:block;
+  display:none;
   padding:10px 8px;
 }
 
 #map_listing li.active{
-  background-color:black;
+ display:block;
 }
 
 /*   TIMELINE */

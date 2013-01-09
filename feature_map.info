@@ -1,5 +1,5 @@
 name = Feature map
-description = Show your content on a map
+description = Display content on a map
 version = 7.x-dev
 
 package = Features

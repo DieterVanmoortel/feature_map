@@ -8,7 +8,7 @@
 /*
  * TODO :
  *
- * - cleanup of map_coordinates table
+ * - cleanup of map_coordinates table on cron
  * 
  */
 
@@ -25,7 +25,7 @@ function feature_map_permission(){
     return array(
     'administer map' => array(
       'title' => t('Administer map'), 
-      'description' => t('Set map settings.'),
+      'description' => t('Configure maps & location settings.'),
     ),
   );
 }
@@ -43,11 +43,19 @@ function feature_map_menu() {
   );
   
   $items['map'] = array(
-    'title' => t('Map'),
     'page callback' => 'feature_map_page', 
     'access arguments' => array('access content'), 
     'file' => 'includes/feature_map.pages.inc',
     'type' => MENU_CALLBACK,
+  );
+
+  $items['node/%/location'] = array(
+    'title' => t('Location'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('feature_map_node_settings', 1),
+    'access arguments' => array('administer map'), 
+    'file' => 'includes/feature_map.forms.inc',
+    'type' => MENU_LOCAL_TASK,
   );
 
   $items['admin/config/map'] = array(
@@ -64,14 +72,6 @@ function feature_map_menu() {
     'access arguments' => array('administer map'),
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
-  );
-
-  $items['ajax/map/%'] = array(
-    'page callback' => 'feature_map_ajax',
-    'page arguments' => array(3),
-    'access arguments' => array('access content'),
-    'file' => 'includes/feature_map.ajax.inc',
-    'type' => MENU_CALLBACK,
   );
   
   $types = array_filter(variable_get_value('map_entity_type'));
@@ -106,6 +106,22 @@ function feature_map_entity_insert($entity, $type) {
   }
 }
 
+/**
+ * Implementing hook_entity_delete
+ * Identical function to hook_entity_update, which is not triggered with new entities
+ */
+function feature_map_entity_delete($entity, $type) {
+  $mapped_entities = array_filter(variable_get_value('map_entity_type'));
+  if(in_array($entity->type, $mapped_entities)) {
+    dpm($entity, 'add code to entity_delete');
+    // delete from map_coordinates
+//    db_delete('map_coordinates')
+//      ->condition('entity_id', $entity_id)
+//      ->condition('bundle', $entity_type)
+//      ->execute();
+
+  }
+}
 
 /**
  *  Implementing hook_entity_update
@@ -142,75 +158,15 @@ function feature_map_form_alter(&$form, &$form_state, $form_id){
       $form['#submit'][] = 'feature_map_rebuild_menu';
       break;
   }
-  $mapped_entities = array_filter(variable_get_value('map_entity_type'));
-  foreach($mapped_entities as $entity) {
-    // add a map preview to the node edit form
-    if($form_id == $entity . '_node_form') {
-      $nid = $form['nid']['#value'];
-      $form['location'] = array(
-        '#type' => 'fieldset',
-        '#title' => 'Location',
-        '#prefix' => '<div id="gmap-preview">',
-        '#suffix' => '</div>',
-        '#weight' => 100,
-      );
-      if(!is_null($nid)){
-        $coord = db_query('SELECT lat, lon FROM {map_coordinates} WHERE entity_id = ' . $nid)->fetchAll();
-        if($coord){
-          $lat = $coord[0]->lat;
-          $lon = $coord[0]->lon;
-          $form['location']['lat'] = array(
-            '#type' => 'textfield',
-            '#title' => 'Latitude',
-            '#default_value' => $lat,
-            '#prefix' => '<div class="coordinates">',
-          );
-          $form['location']['lon'] = array(
-            '#type' => 'textfield',
-            '#title' => 'Longitude',
-            '#default_value' => $lon,
-            '#suffix' => '</div>',
-          );
-
-          $form['location']['map'] = array(
-            '#markup' => feature_map_entity_preview($lat, $lon),
-          );
-        }
-        $entity = $form['#entity'];
-        $mapped_fields = variable_get_value($entity->type .'_mapping');
-        $addresscomponents = array();
-        foreach((array)$mapped_fields as $field) {
-          $value = field_get_items('node', $entity, $field);
-          $addresscomponents[] = strtolower($value[0]['value']);
-        }
-        $address = implode(',', $addresscomponents);
-        // url needs to match with the one in map_fetch_grid() (Helpers)
-        $url = "http://maps.googleapis.com/maps/api/geocode/json?address=";
-        $url .= $address;
-        $url .= "&sensor=false";
-        $form['location']['gmap-link'] = array(
-          '#markup' => l('Check on Google Maps', $url),
-        );
-      }
-    }
-  }
-
 }
 
 
-//replace with theme function? 
-function feature_map_entity_preview($lat, $lon) {
-  add_map_basics();
-  drupal_add_js(array(
-    'featureMap' => array(
-        'lat' => $lat,
-        'lng' => $lon,
-    )
-  ), 'setting');
-  
-  $out = '<div id="preview">';
-  $out .= '<div id="gmap">Loading map...</div>';
-  $out .= '</div>';
-  return $out;
+/*
+ * Implements hook_admin_paths
+ */
+function feature_map_admin_paths() {
+  $paths = array(
+    'node/*/location' => TRUE, 
+  );
+  return $paths;
 }
-

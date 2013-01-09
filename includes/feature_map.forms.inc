@@ -134,7 +134,6 @@ function map_entity_mapping_form_submit($form, &$form_state) {
   }
 }
 
-
   /**
  * Cron callback
  * menu : admin/settings/check-coordinates
@@ -167,4 +166,62 @@ function feature_map_check_coordinates($entity_type = FALSE, $display = FALSE) {
     $coords ? $results = array_merge($results, $coords): '';
   }
   return $display ? $results : $count . ' nodes were enriched with lattitude & longitude.';
+}
+
+function feature_map_node_settings($form_id, $form_state, $nid){
+
+  $form['location'] = array(
+    '#prefix' => '<div id="gmap-preview">',
+    '#suffix' => '</div>',
+  );
+  $coord = db_query('SELECT lat, lon FROM {map_coordinates} WHERE entity_id = ' . $nid)->fetchAll();
+  if($coord){
+    $lat = $coord[0]->lat;
+    $lon = $coord[0]->lon;
+    $form['location']['lat'] = array(
+      '#type' => 'textfield',
+      '#title' => 'Latitude',
+      '#default_value' => $lat,
+      '#prefix' => '<div class="coordinates">',
+    );
+    $form['location']['lon'] = array(
+      '#type' => 'textfield',
+      '#title' => 'Longitude',
+      '#default_value' => $lon,
+      '#suffix' => '</div>',
+    );
+  }
+  $form['location']['map'] = array(
+    '#markup' => theme('entity_preview', array($lat, $lon)),
+  );
+  
+  $entity = entity_load('node', array($nid));
+  if(is_array($entity)){
+    $entity = $entity[$nid];
+    $mapped_fields = variable_get_value($entity->type .'_mapping');
+    $addresscomponents = array();
+    foreach((array)$mapped_fields as $field) {
+      $value = field_get_items('node', $entity, $field);
+      $addresscomponents[] = strtolower($value[0]['value']);
+    }
+    $address = implode(',', $addresscomponents);
+    //  url needs to match with the one in map_fetch_grid() (Helpers)
+    $url = "http://maps.googleapis.com/maps/api/geocode/json?address=";
+    $url .= $address;
+    $url .= "&sensor=false";
+    $form['location']['gmap-link'] = array(
+      '#markup' => l('Check on Google Maps', $url, array('attributes' => array('target' => 'blanco'))),
+    );
+  }
+  return system_settings_form($form);
+
+}
+
+function feature_map_node_settings_validate($form, $form_state) {
+  $lat = $form_state['values']['lat'];
+  $lon = $form_state['values']['lon'];
+}
+
+function feature_map_node_settings_submit($form, $form_state) {
+  // save to map_coordinates
 }

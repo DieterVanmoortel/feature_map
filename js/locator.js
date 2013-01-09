@@ -1,21 +1,24 @@
 (function($) {
   Drupal.behaviors.GmapLocator = {
-    // Google map.
+    // var definitions
     map: undefined,
-
-    // Map markers.
     markers: [],
 
     attach: function(context) {
+      console.log(Drupal.settings);
       /*  Preview image */
       if (Drupal.settings.featureMap.lat && Drupal.settings.featureMap.lng) {
-        set_preview_marker();
+        if($('#gmap').length){
+          set_preview_marker();
+        }
+        
       }
       /*  Basic Map Page */
       else{
+        if($('#map_canvas').length){
         // Default build
           buildMapAround('default');
-          
+        }
         // use location search box
         $('#zipcodesearchform .location-submit').bind('click', function(e){
           e.preventDefault();
@@ -32,7 +35,7 @@
 /* FUNCTIONS */
 
   function set_preview_marker() {
-    var myLatlng = new google.maps.LatLng(Drupal.settings.feature_map.lat,Drupal.settings.feature_map.lng);
+    var myLatlng = new google.maps.LatLng(Drupal.settings.featureMap.lat,Drupal.settings.featureMap.lng);
     var myOptions = {
       zoom: 8,
       center: myLatlng,
@@ -85,7 +88,6 @@
       },
       success : function(data) {
         var location = getDefaultLocation();
-
         
         var marker = new google.maps.Marker({
               position: location,
@@ -94,7 +96,6 @@
         });
         
         $.each(data, function(pos, data) {
-          console.log(data);
           var marker = new google.maps.Marker({
               position: new google.maps.LatLng(data.lat,data.lng),
               icon:  Drupal.settings.featureMap.modulePath + '/images/bluesphere.png',
@@ -107,7 +108,7 @@
             // To add the marker to the map, call setMap();
           infoBubble = new InfoBubble ({
             shadowStyle: 1,
-            padding: 0,
+            padding: 2,
             backgroundColor: 'rgb(57,57,57)',
             borderRadius: 0,
             arrowSize: 20,
@@ -120,6 +121,9 @@
             arrowStyle: 2,
             disableAnimation:true
           });
+          
+          $('#map_listing').append('<li class="marker-' + marker.id + '">' + data.full + '</li>');         
+          
           google.maps.event.addListener(marker, 'click', function() {
             infoBubble.setContent('<div class="infotext">' + this.html + '</div>');
             infoBubble.open(map, this);
@@ -128,7 +132,6 @@
             $('.month-' + marker.month).parent('li').addClass('active');
           });
           
-          $('#map_listing').append('<li class="marker-' + marker.id + '">' + data.full +  marker.id +  '</li>');
         });
       }
     });

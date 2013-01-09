@@ -31,26 +31,23 @@ function feature_map_theme($existing, $type, $theme, $path) {
   ) + $defaults;
 
   $items['entity_preview'] = array(
-      'arguments' => array(
-        'lat' => NULL,
-        'lon' => NULL
-        ),
+      'variables' => array(),
   ) + $defaults;
 
   return $items;
 }
 
-function theme_entity_preview($lat, $lon){
+function theme_entity_preview($vars) {
   add_map_basics();
   drupal_add_js(array(
-    'feature_map' => array(
-        'lat' => $lat,
-        'lng' => $lon,
+    'featureMap' => array(
+        'lat' => $vars[0],
+        'lng' => $vars[1],
     )
   ), 'setting');
-
+  
   $out = '<div id="preview">';
-  $out .= '<div id="gmap">Loading map...</div>';
+  $out .= '<div id="gmap">Unable to load map...</div>';
   $out .= '</div>';
   return $out;
 }
