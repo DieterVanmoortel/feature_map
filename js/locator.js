@@ -1,9 +1,12 @@
 (function($) {
-  var map;
-  var markers = [];
-
   Drupal.behaviors.GmapLocator = {
-    attach: function(context) {  
+    // Google map.
+    map: undefined,
+
+    // Map markers.
+    markers: [],
+
+    attach: function(context) {
       /*  Preview image */
       if (Drupal.settings.featureMap.lat && Drupal.settings.featureMap.lng) {
         set_preview_marker();
@@ -87,14 +90,14 @@
         var marker = new google.maps.Marker({
               position: location,
               map: map,
-              icon:  Drupal.settings.featureMap.modulePath + '/theme/blackmarker.png'
+              icon:  Drupal.settings.featureMap.modulePath + '/images/blackmarker.png'
         });
         
         $.each(data, function(pos, data) {
           console.log(data);
           var marker = new google.maps.Marker({
               position: new google.maps.LatLng(data.lat,data.lng),
-              icon:  Drupal.settings.featureMap.modulePath + '/theme/bluesphere.png',
+              icon:  Drupal.settings.featureMap.modulePath + '/images/bluesphere.png',
               html: data.teaser,
               month: data.month,
               id: pos,
@@ -143,7 +146,7 @@
     var marker = new google.maps.Marker({
       map: map,
       position: location,
-      icon: Drupal.settings.featureMap.modulePath + "/theme/blackmarker.png"
+      icon: Drupal.settings.featureMap.modulePath + "/images/blackmarker.png"
     });
     load_markers(map);
   }

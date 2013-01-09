@@ -76,18 +76,18 @@
 
 /*   TIMELINE */
 #map_timeline{
-  clear:both;
-  background-color:whitesmoke;
-  display:block;
+  display:inline;
+
+  width:40px;
 }
 #map_timeline ul{
+  background-color:whitesmoke;
   list-style-type:none;
 }
 #map_timeline ul li{
   padding:8px 4px;
-  display:inline-block;
+  display:block;
 }
 #map_timeline ul li.active{
-  background-color:#2d2d2d;
-  color:whitesmoke;
+  background-color:#DDD;
 }

@@ -15,7 +15,7 @@ function feature_map_locator_json() {
 
   // alter filters by a hook?
   foreach($markers as $key => $marker){
-    $markers[$key]['month'] =  format_date($marker['field_event_date'], 'custom', 'M');
+    $markers[$key]['month'] =  format_date($marker['field_event_date'], 'custom', 'n');
 
   }
 

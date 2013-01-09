@@ -72,7 +72,11 @@ function theme_map_description($vars){
 
 function theme_map_timeline($vars) {
   $out = '<div id="map_timeline">';
-  $out .= theme('item_list', array('items' => array('<span class="month-Jan">Jan</span>', 'Feb', '<span class="month-Jun">Jun</span>',  'Apr', 'Mai')));
+  $out .= '<h3>' . t('Months') . '</h3>';
+  for ($i=1; $i<=12; $i++){
+    $months[] = '<span class="month-' . $i . '">'. map_month($i) . '</span>';
+  }
+  $out .= theme('item_list', array('items' => $months));
   $out .= '</div>';
   return $out;
 }
