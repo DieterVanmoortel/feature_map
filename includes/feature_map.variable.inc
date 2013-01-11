@@ -53,6 +53,12 @@ function feature_map_variable_info($options) {
     'group' => 'map',
     'default' => 40000,
   );
+  $variables['always_rebuild_coordinates'] = array(
+    'title' => t('Always rebuild coordinates on update'),
+    'type' => 'number',
+    'group' => 'map',
+    'default' => 0,
+  );
   $variables['map_view_type'] = array(
     'title' => t('Map view type'),
     'type' => 'select',

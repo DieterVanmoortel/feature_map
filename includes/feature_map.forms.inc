@@ -175,22 +175,24 @@ function feature_map_node_settings($form_id, $form_state, $nid){
     '#suffix' => '</div>',
   );
   $coord = db_query('SELECT lat, lon FROM {map_coordinates} WHERE entity_id = ' . $nid)->fetchAll();
-  if($coord){
-    $lat = $coord[0]->lat;
-    $lon = $coord[0]->lon;
-    $form['location']['lat'] = array(
-      '#type' => 'textfield',
-      '#title' => 'Latitude',
-      '#default_value' => $lat,
-      '#prefix' => '<div class="coordinates">',
-    );
-    $form['location']['lon'] = array(
-      '#type' => 'textfield',
-      '#title' => 'Longitude',
-      '#default_value' => $lon,
-      '#suffix' => '</div>',
-    );
+  if(!$coord){
+    drupal_set_message(t('No coordinates mapped.'));
   }
+  $lat = isset($coord) ? $coord[0]->lat : '';
+  $lon = isset($coord) ? $coord[0]->lon : '';
+
+  $form['location']['lat'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Latitude',
+    '#default_value' => $lat,
+    '#prefix' => '<div class="coordinates">',
+  );
+  $form['location']['lon'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Longitude',
+    '#default_value' => $lon,
+    '#suffix' => '</div>',
+  );
   $form['location']['map'] = array(
     '#markup' => theme('entity_preview', array($lat, $lon)),
   );
@@ -220,8 +222,19 @@ function feature_map_node_settings($form_id, $form_state, $nid){
 function feature_map_node_settings_validate($form, $form_state) {
   $lat = $form_state['values']['lat'];
   $lon = $form_state['values']['lon'];
+  if(!is_numeric($lat) || !is_numeric($lon) || $lat > 90 || $lat < 0 || $lon < -180 || $lon > 180){
+    form_set_error('', t('Invalid latitude or longitude value'));
+  }
 }
 
 function feature_map_node_settings_submit($form, $form_state) {
-  // save to map_coordinates
+  if(is_numeric(arg(1))){
+    db_merge('map_coordinates')
+    ->key(array('entity_id' => arg(1)))
+    ->fields(array(
+      'lat' => $form_state['values']['lat'],
+      'lon' => $form_state['values']['lon'],
+    ))
+    ->execute();
+  }
 }

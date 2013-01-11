@@ -143,7 +143,7 @@ function feature_map_entity_update($entity, $type) {
         
       }
     // and retrieve coordinates if it is
-    if($fetch_grid){
+    if($fetch_grid || variable_get_value('always_rebuild_coordinates') == 1) {
       retrieve_map_coordinates($address, $entity);
     }
   }

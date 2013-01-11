@@ -98,7 +98,7 @@
         $.each(data, function(pos, data) {
           var marker = new google.maps.Marker({
               position: new google.maps.LatLng(data.lat,data.lng),
-              icon:  Drupal.settings.featureMap.modulePath + '/images/bluesphere.png',
+              icon:  Drupal.settings.featureMap.modulePath + '/images/marker.png',
               html: data.teaser,
               month: data.month,
               id: pos,
@@ -111,7 +111,7 @@
             padding: 2,
             backgroundColor: 'rgb(57,57,57)',
             borderRadius: 0,
-            arrowSize: 20,
+            arrowSize: 5,
             borderWidth: 1,
             borderColor: '#000',
             disableAutoPan: true,
