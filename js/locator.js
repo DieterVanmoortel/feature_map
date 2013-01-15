@@ -138,11 +138,13 @@
   }
 
   function centerMapOn(location) {
+    var terrain = Drupal.settings.featureMap.mapType;
+    console.log(google.maps.MapTypeId[terrain]);
     var mapOptions = {
       scrollwheel: false,
       zoom: 7,
       center: location,
-      mapTypeId: google.maps.MapTypeId.TERRAIN
+      mapTypeId: google.maps.MapTypeId[terrain]
     };
     map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
     map.setCenter(location);

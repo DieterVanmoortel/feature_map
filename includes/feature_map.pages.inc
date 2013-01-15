@@ -25,6 +25,7 @@ function feature_map_page() {
     'featureMap' => array(
         'ajaxPath' => base_path() . 'ajax/locator',
         'modulePath' => drupal_get_path('module', 'feature_map'),
+        'mapType' => variable_get_value('map_view_type'),
         )
     ), 'setting');
 
