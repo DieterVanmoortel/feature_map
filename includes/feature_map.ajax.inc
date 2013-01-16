@@ -18,33 +18,41 @@ function feature_map_locator_json() {
 
 function load_all_markers(){ 
   $stored_markers = &drupal_static(__FUNCTION__);
-//  if (isset($stored_markers)) {return $stored_markers; }
-  
-  $markers = array();
-  $entities = db_query('SELECT * FROM {map_coordinates}')->fetchAll();
-  foreach((array)$entities as $entity) {
-    $full_entity = entity_load($entity->entity_type, array($entity->entity_id));
-    if ($full_entity) {
-      $full_entity = $full_entity[$entity->entity_id];
-      $marker = array(
-        'teaser' => $full_entity->title,
-        'full' => $full_entity->title,
-        'lat' => $entity->lat,
-        'lng' => $entity->lon,
-        'id' => $entity->entity_id
-      );
-      // add filters
-      $filters = variable_get($full_entity->type .'_mapfilters', FALSE);
-      if ($filters) {
-        foreach((array)$filters as $filter) {
-          $fieldvalue = field_get_items($entity->entity_type, $full_entity, $filter);
-          if (isset($fieldvalue[0]['value'])) {
-            $marker[$filter] = $fieldvalue[0]['value'];
+  if (isset($stored_markers)) {return $stored_markers; }
+  if ($cache = cache_get('feature_map_markers')) {
+    $markers = $cache->data;
+  }
+  else {
+
+    $markers = array();
+    $entities = db_query('SELECT * FROM {map_coordinates}')->fetchAll();
+    foreach((array)$entities as $entity) {
+      $full_entity = entity_load($entity->entity_type, array($entity->entity_id));
+      if ($full_entity) {
+        $full_entity = $full_entity[$entity->entity_id];
+        $infowindow = node_view($full_entity, variable_get_value('ds_buildmode_infowindow'));
+        $listview = node_view($full_entity, 'full');
+        $marker = array(
+          'infowindow' => drupal_render($infowindow),
+          'list' => drupal_render($listview),
+          'lat' => $entity->lat,
+          'lng' => $entity->lon,
+          'id' => $entity->entity_id
+        );
+        // add filters
+        $filters = variable_get($full_entity->type .'_mapfilters', FALSE);
+        if ($filters) {
+          foreach((array)$filters as $filter) {
+            $fieldvalue = field_get_items($entity->entity_type, $full_entity, $filter);
+            if (isset($fieldvalue[0]['value'])) {
+              $marker[$filter] = $fieldvalue[0]['value'];
+            }
           }
         }
+        $markers[] = $marker;
       }
-      $markers[] = $marker;
     }
+    cache_set('feature_map_markers', $markers);
   }
   $stored_markers = $markers;
   return $markers;
