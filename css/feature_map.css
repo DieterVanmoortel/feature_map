@@ -42,9 +42,11 @@
 
 /********** INFOWINDOW **********/
 .infoBubble{
+  height:180px;
 
 }
 .infotext{
+  height:180px;
   color: #fff;
   font-family: Helvetica Neue, Helvetica, arial;
   font-size: 14px;

@@ -125,6 +125,7 @@
           $('#map_listing').append('<li class="marker-' + marker.id + '">' + data.list + '</li>');         
           
           google.maps.event.addListener(marker, 'click', function() {
+            map.panTo(marker.position);
             infoBubble.setContent('<div class="infotext">' + this.html + '</div>');
             infoBubble.open(map, this);
             $('#map_listing li, #map_timeline li').removeClass('active');
@@ -139,7 +140,6 @@
 
   function centerMapOn(location) {
     var terrain = Drupal.settings.featureMap.mapType;
-    console.log(google.maps.MapTypeId[terrain]);
     var mapOptions = {
       scrollwheel: false,
       zoom: 7,
