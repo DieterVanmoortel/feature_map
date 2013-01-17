@@ -11,10 +11,17 @@ function feature_map_rebuild_menu(){
  */
 function map_view_type_options($variable, $options = array()){
   return array(
-      'ROADMAP' => t('Roadmap'),
-      'TERRRAIN' => t('Terrain'),
-      'SATELLITE' => t('Satellite'),
+    'HYBRID' => t('Hybrid'),
+    'ROADMAP' => t('Roadmap'),
+    'TERRAIN' => t('Terrain'),
+    'SATELLITE' => t('Satellite'),
   );
+}
+
+function view_ds_types($variable, $options = array()){
+  return drupal_map_assoc(array(
+    'teaser'
+  ));
 }
 /**
  * select list callback : content types
@@ -151,22 +158,25 @@ function order_by_ranking($agents) {
 }
 
 function map_selected_countries($value = FALSE){
-//  $countries = country_get_list();
-  $t = get_t();
-  $countries = array(
-    'AT' => $t('Austria'),
-    'BE' => $t('Belgium'),
-    'CH' => $t('Switzerland'),
-    'DE' => $t('Germany'),
-    'ES' => $t('Spain'),
-    'FR' => $t('France'),
-    'GB' => $t('United Kingdom'),
-    'IT' => $t('Italy'),
-    'LU' => $t('Luxembourg'),
-    'NL' => $t('Netherlands'),
-  );
+  
   if($value){
+    $countries = country_get_list(); // ALL Countries
     return $countries[$value];
+  }
+  else{
+    $t = get_t();
+    $countries = array(
+      'AT' => $t('Austria'),
+      'BE' => $t('Belgium'),
+      'CH' => $t('Switzerland'),
+      'DE' => $t('Germany'),
+      'ES' => $t('Spain'),
+      'FR' => $t('France'),
+      'GB' => $t('United Kingdom'),
+      'IT' => $t('Italy'),
+      'LU' => $t('Luxembourg'),
+      'NL' => $t('Netherlands'),
+    );
   }
   // Sort the list.
   natcasesort($countries);

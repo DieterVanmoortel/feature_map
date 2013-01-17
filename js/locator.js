@@ -98,7 +98,7 @@
           var marker = new google.maps.Marker({
               position: new google.maps.LatLng(data.lat,data.lng),
               icon:  Drupal.settings.featureMap.modulePath + '/images/marker.png',
-              html: data.teaser,
+              html: data.infowindow,
               month: data.month,
               id: pos,
               map: map
@@ -109,11 +109,11 @@
             shadowStyle: 1,
             padding: 2,
             backgroundColor: 'rgb(57,57,57)',
-            borderRadius: 0,
+            borderRadius: 5,
             arrowSize: 5,
             borderWidth: 1,
             borderColor: '#000',
-            disableAutoPan: true,
+            disableAutoPan: false,
             hideCloseButton: true,
             arrowPosition: 0,
             backgroundClassName: 'infoBubble',
@@ -121,9 +121,10 @@
             disableAnimation:true
           });
           
-          $('#map_listing').append('<li class="marker-' + marker.id + '">' + data.full + '</li>');         
+          $('#map_listing').append('<li class="marker-' + marker.id + '">' + data.list + '</li>');         
           
           google.maps.event.addListener(marker, 'click', function() {
+            map.panTo(marker.position);
             infoBubble.setContent('<div class="infotext">' + this.html + '</div>');
             infoBubble.open(map, this);
             $('#map_listing li, #map_timeline li').removeClass('active');
@@ -137,11 +138,12 @@
   }
 
   function centerMapOn(location) {
+    var terrain = Drupal.settings.featureMap.mapType;
     var mapOptions = {
       scrollwheel: false,
       zoom: 7,
       center: location,
-      mapTypeId: google.maps.MapTypeId.TERRAIN
+      mapTypeId: google.maps.MapTypeId[terrain]
     };
     map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
     map.setCenter(location);

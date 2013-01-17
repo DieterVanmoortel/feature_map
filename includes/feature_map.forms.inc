@@ -198,6 +198,7 @@ function feature_map_node_settings($form_id, $form_state, $nid){
   );
   
   $entity = entity_load('node', array($nid));
+  dpm($entity);
   if(is_array($entity)){
     $entity = $entity[$nid];
     $mapped_fields = variable_get_value($entity->type .'_mapping');
