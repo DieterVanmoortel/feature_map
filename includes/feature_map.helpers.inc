@@ -39,6 +39,7 @@ function retrieve_map_coordinates($address, $entity, $display = FALSE){
       $countrycheck = variable_get($entity->type .'_mapping_country_check', FALSE);      
       $countrycheck ? $country = variable_get($entity->type .'_mapping_country', FALSE) : '';
       $countrycheck ? $address[] = map_selected_countries($country) : '';
+      
       $address = implode(',',$address);
       // fetch from google maps
       if(!empty($address)) {
@@ -150,28 +151,20 @@ function order_by_ranking($agents) {
 }
 
 function map_selected_countries($value = FALSE){
-  $countries = country_get_list();
-//  $t = get_t();
-//  $countries = array(
-//    'AT' => $t('Austria'),
-//    'BE' => $t('Belgium'),
-//    'CH' => $t('Switzerland'),
-//    'DE' => $t('Germany'),
-////    'DK' => $t('Denmark'),
-//    'ES' => $t('Spain'),
-////    'FI' => $t('Finland'),
-//    'FR' => $t('France'),
-//    'GB' => $t('United Kingdom'),
-////    'GR' => $t('Greece'),
-//    'IT' => $t('Italy'),
-//    'LU' => $t('Luxembourg'),
-//    'NL' => $t('Netherlands'),
-////    'NO' => $t('Norway'),
-//    'PL' => $t('Poland'),
-////    'PT' => $t('Portugal'),
-////    'SE' => $t('Sweden'),
-////    'US' => $t('United States'),
-//  );
+//  $countries = country_get_list();
+  $t = get_t();
+  $countries = array(
+    'AT' => $t('Austria'),
+    'BE' => $t('Belgium'),
+    'CH' => $t('Switzerland'),
+    'DE' => $t('Germany'),
+    'ES' => $t('Spain'),
+    'FR' => $t('France'),
+    'GB' => $t('United Kingdom'),
+    'IT' => $t('Italy'),
+    'LU' => $t('Luxembourg'),
+    'NL' => $t('Netherlands'),
+  );
   if($value){
     return $countries[$value];
   }

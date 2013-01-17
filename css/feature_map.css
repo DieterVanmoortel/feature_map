@@ -1,30 +1,8 @@
-.page-map .centered{width:100%}
-.page-map .centered #content{
-  width:100%;
-  background-color:#2D2D2D;
-}
-
 /* MAP PREVIEW */
-/*#gmap-preview #preview{float:right;}*/
-/*#gmap-preview .coordinates{float:left; display:inline;}*/
 #gmap-preview #gmap{width:350px; height:250px;}
-/*#gmap-preview a{float:left;}*/
 
-#map_wrapper {position:relative; height:80%; width:100%;display:block;}
-#map_canvas {height: 1000px; width:80%; float:left;}
-
-
-
-/*#map_options {position:relative; height:750px; width:15%;background-color: #0B0D12;clear:none;float:right;}*/
-#map_options {position:relative; height:auto; width:100%;background-color: white;clear:none;float:right;}
-#map_options h2{background-color:white;display:block;padding:10px;}
-#map_options .block{
-  padding:8px;
-  color:whitesmoke;
-  display:inline-block;
-  height:auto;
-  clear:none;
-}
+#map_wrapper {height:80%; width:100%;display:block;}
+#map_canvas {height: 600px; width:600px;}
 
 #zipcodesearchform{
   display:inline-block;
@@ -54,40 +32,8 @@
 }
 .infodetails{
   border:1px solid green;
-  
 }
-
-/*********** LISTING ********/
-#map_listing{
-  display:inline-block;
-  padding:0;
-  width:20%;
-}
-#map_listing li{
-  background-color:#2D2D2D;
-  color:white;
-  display:none;
-  padding:10px 8px;
-}
-
-#map_listing li.active{
- display:block;
-}
-
-/*   TIMELINE */
-#map_timeline{
-  display:inline;
-
-  width:40px;
-}
-#map_timeline ul{
-  background-color:whitesmoke;
-  list-style-type:none;
-}
-#map_timeline ul li{
-  padding:8px 4px;
+.infotext span{
   display:block;
 }
-#map_timeline ul li.active{
-  background-color:#DDD;
-}
+

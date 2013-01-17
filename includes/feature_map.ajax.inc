@@ -5,13 +5,24 @@
  * ajax/branch-locator
  */
 function feature_map_locator_json() {
-  $data = isset($_REQUEST['markers']) ? check_plain($_REQUEST['markers']) : 'initial';
-
   $markers = load_all_markers();
+  
+  // make code below optional? Do something with display suite.. 
+
+  // and use the filtering array!
+  foreach((array)$markers as $key => $marker) {
+    $markers[$key]['teaser'] = '<span class="name">' . $marker['teaser'] . '</span>';
+    unset($marker['lat'], $marker['lng'], $marker['id'], $marker['full']);
+    unset($marker['teaser']);
+    foreach((array)$marker as $label => $value){
+      $markers[$key]['teaser'] .= '<span class="' . $label . '">' . $value . '</span>';
+    }
+  }
+
 
   // check for hooks altering the resultset : hook_markers_alter
   apply_markers_alter($markers);
-  
+
   return drupal_json_output($markers);
 }
 

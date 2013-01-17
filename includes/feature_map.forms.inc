@@ -178,8 +178,8 @@ function feature_map_node_settings($form_id, $form_state, $nid){
   if(!$coord){
     drupal_set_message(t('No coordinates mapped.'));
   }
-  $lat = isset($coord) ? $coord[0]->lat : '';
-  $lon = isset($coord) ? $coord[0]->lon : '';
+  $lat = isset($coord, $coord[0]) ? $coord[0]->lat : '';
+  $lon = isset($coord, $coord[0]) ? $coord[0]->lon : '';
 
   $form['location']['lat'] = array(
     '#type' => 'textfield',

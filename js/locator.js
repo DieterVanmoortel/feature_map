@@ -5,7 +5,6 @@
     markers: [],
 
     attach: function(context) {
-      console.log(Drupal.settings);
       /*  Preview image */
       if (Drupal.settings.featureMap.lat && Drupal.settings.featureMap.lng) {
         if($('#gmap').length){

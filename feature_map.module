@@ -95,7 +95,7 @@ function feature_map_menu() {
  */
 function feature_map_entity_insert($entity, $type) {
   $mapped_entities = array_filter(variable_get_value('map_entity_type'));
-  if(in_array($entity->type, $mapped_entities)) {
+  if(in_array($type, $mapped_entities)) {
     $mapped_fields = variable_get_value($entity->type .'_mapping');
     foreach((array)$mapped_fields as $key => $field) {
       $data = field_get_items('node', $entity, $field);
@@ -113,12 +113,11 @@ function feature_map_entity_insert($entity, $type) {
 function feature_map_entity_delete($entity, $type) {
   $mapped_entities = array_filter(variable_get_value('map_entity_type'));
   if(in_array($entity->type, $mapped_entities)) {
-    dpm($entity, 'add code to entity_delete');
     // delete from map_coordinates
-//    db_delete('map_coordinates')
-//      ->condition('entity_id', $entity_id)
-//      ->condition('bundle', $entity_type)
-//      ->execute();
+    db_delete('map_coordinates')
+      ->condition('entity_id', $entity->nid)
+      ->condition('bundle', $type)
+      ->execute();
 
   }
 }
