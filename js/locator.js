@@ -96,28 +96,23 @@
         
         $.each(data, function(pos, data) {
           var marker = new google.maps.Marker({
-              position: new google.maps.LatLng(data.lat,data.lng),
-              icon:  Drupal.settings.featureMap.modulePath + '/images/marker.png',
-              html: data.infowindow,
-              month: data.month,
-              id: pos,
-              map: map
-            });
+            position: new google.maps.LatLng(data.lat,data.lng),
+            icon:  Drupal.settings.featureMap.modulePath + '/images/marker.png',
+            html: data.infowindow,
+            month: data.month,
+            id: pos,
+            map: map
+          });
             
-            // To add the marker to the map, call setMap();
-          infoBubble = new InfoBubble ({
-            shadowStyle: 1,
-            padding: 2,
-            backgroundColor: 'rgb(57,57,57)',
+          // To add the marker to the map, call setMap();
+          infoBubble = new InfoBubble({
+            shadowStyle: 2,
+            maxWidth: 240,
+            minHeight: 280,
             borderRadius: 5,
-            arrowSize: 5,
-            borderWidth: 1,
-            borderColor: '#000',
-            disableAutoPan: false,
-            hideCloseButton: true,
-            arrowPosition: 0,
-            backgroundClassName: 'infoBubble',
-            arrowStyle: 2,
+            borderColor: '#ffffff',
+            borderWidth: 3,
+            backgroundColor: 'rgb(57,57,57)',
             disableAnimation:true
           });
           

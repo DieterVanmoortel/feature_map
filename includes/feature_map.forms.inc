@@ -147,7 +147,6 @@ function feature_map_check_coordinates($entity_type = FALSE, $display = FALSE) {
   $query->leftjoin('map_coordinates', 'grid', 'n.nid = grid.entity_id');
   $query->condition('grid.lat', NULL);
   $query->condition('grid.lon', NULL);
-//  $query->condition('field_branch_address_zip_value', NULL, 'IS NOT');
   $query->range(0,100);
   $query->condition('n.status', 1);
   $query->fields('n', array('nid'));
@@ -169,17 +168,23 @@ function feature_map_check_coordinates($entity_type = FALSE, $display = FALSE) {
 }
 
 function feature_map_node_settings($form_id, $form_state, $nid){
+  $lat = '';
+  $lon = '';
 
+  $coord = db_query('SELECT lat, lon FROM {map_coordinates} WHERE entity_id = ' . $nid)->fetchAll();
+
+  if ($coord && isset($coord[0])) {
+    $lat = $coord[0]->lat;
+    $lon = $coord[0]->lon;
+  }
+  else{
+    drupal_set_message(t('No coordinates mapped.'));
+  }
+  
   $form['location'] = array(
     '#prefix' => '<div id="gmap-preview">',
     '#suffix' => '</div>',
   );
-  $coord = db_query('SELECT lat, lon FROM {map_coordinates} WHERE entity_id = ' . $nid)->fetchAll();
-  if(!$coord){
-    drupal_set_message(t('No coordinates mapped.'));
-  }
-  $lat = isset($coord, $coord[0]) ? $coord[0]->lat : '';
-  $lon = isset($coord, $coord[0]) ? $coord[0]->lon : '';
 
   $form['location']['lat'] = array(
     '#type' => 'textfield',
@@ -198,7 +203,6 @@ function feature_map_node_settings($form_id, $form_state, $nid){
   );
   
   $entity = entity_load('node', array($nid));
-  dpm($entity);
   if(is_array($entity)){
     $entity = $entity[$nid];
     $mapped_fields = variable_get_value($entity->type .'_mapping');
