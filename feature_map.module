@@ -9,6 +9,7 @@
  * TODO :
  *
  * - cleanup of map_coordinates table on cron
+ * - add a ds field showing a small version of the map
  * 
  */
 

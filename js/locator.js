@@ -110,9 +110,10 @@
             maxWidth: 240,
             minHeight: 280,
             borderRadius: 5,
-            borderColor: '#ffffff',
+            borderColor: '#000000',
             borderWidth: 3,
-            backgroundColor: 'rgb(57,57,57)',
+//            backgroundColor: 'rgb(57,57,57)',
+            backgroundColor: '#ffffff',
             disableAnimation:true
           });
           

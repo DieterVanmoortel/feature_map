@@ -170,9 +170,9 @@ function feature_map_check_coordinates($entity_type = FALSE, $display = FALSE) {
 function feature_map_node_settings($form_id, $form_state, $nid){
   $lat = '';
   $lon = '';
-
-  $coord = db_query('SELECT lat, lon FROM {map_coordinates} WHERE entity_id = ' . $nid)->fetchAll();
-
+  if (is_numeric($nid)) {
+    $coord = db_query('SELECT lat, lon FROM {map_coordinates} WHERE entity_id = ' . $nid)->fetchAll();
+  }
   if ($coord && isset($coord[0])) {
     $lat = $coord[0]->lat;
     $lon = $coord[0]->lon;
@@ -219,6 +219,10 @@ function feature_map_node_settings($form_id, $form_state, $nid){
     $form['location']['gmap-link'] = array(
       '#markup' => l('Check on Google Maps', $url, array('attributes' => array('target' => 'blanco'))),
     );
+    $infowindow = node_view($entity, variable_get_value('ds_buildmode_infowindow'));
+    $form['location']['preview'] = array(
+    '#markup' => drupal_render($infowindow),
+  );
   }
   return system_settings_form($form);
 
